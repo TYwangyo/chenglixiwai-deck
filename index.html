@@ -1,0 +1,965 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>城裡戲外招商企劃</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+
+
+<style>@font-face{font-family:"Noto Serif TC";font-weight:600;font-display:block;src:url(f/serif600.woff2) format("woff2")}@font-face{font-family:"Noto Serif TC";font-weight:900;font-display:block;src:url(f/serif900.woff2) format("woff2")}@font-face{font-family:"Noto Sans TC";font-weight:500;font-display:block;src:url(f/sans500.woff2) format("woff2")}@font-face{font-family:"Noto Sans TC";font-weight:700;font-display:block;src:url(f/sans700.woff2) format("woff2")}
+/* 版面概念：整頁就是節目的那本旅遊手冊。水面（程式算的倒影）＝城裡與戲外的分界；讀到哪、手冊打勾到哪。 */
+:root{
+  color-scheme:dark;
+  --ink:#16222c;--ink2:#22303c;--paper:#f5f0e9;--paper2:#ebe3d7;--copper:#b08659;--copper-d:#8d6740;--mist:#a9c0cf;--ash:#6d7780;--white:#f6f9fb;
+  --display:"Noto Serif TC","Songti TC",serif;--body:"Noto Sans TC","PingFang TC",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--white);font:400 16px/1.8 var(--body);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+*{box-sizing:border-box}
+h1,h2,h3,h4,p,ul,ol,dl,dd,blockquote,figure{margin:0;padding:0}
+ul,ol{list-style:none}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--copper);outline-offset:3px}
+.band{padding-block:128px;overflow:clip}
+.wrap{max-width:952px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:48px}
+.paper{background:var(--paper);color:var(--ink2)}
+.ink{background:var(--ink);color:var(--white)}
+.ink2{background:var(--ink2);color:var(--white)}
+.eyebrow{font:500 12.5px/1.4 var(--mono);letter-spacing:.2em;color:var(--copper)}
+.ink .eyebrow,.ink2 .eyebrow{color:var(--mist)}
+h2{font:900 52px/1.28 var(--display);text-wrap:balance;margin-top:12px}
+h3{font:600 28px/1.4 var(--display);text-wrap:balance}
+h4{font:700 15px/1.5 var(--body);letter-spacing:.04em}
+.lead{max-width:40em;font-size:18px}
+.note{font-size:13.5px;line-height:1.7;color:var(--ash)}
+.ink .note,.ink2 .note{color:var(--mist)}
+.head{display:grid;gap:4px}
+.mono{font-family:var(--mono)}
+/* hud */
+#bar{position:fixed;top:env(safe-area-inset-top,0px);left:0;height:3px;width:100%;transform-origin:left;transform:scaleX(0);background:var(--copper);z-index:20}
+#hud{transition:opacity .4s;opacity:0;pointer-events:none;position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:18px;width:178px;z-index:15;background:var(--paper);color:var(--ink2);padding:12px 14px 10px;border-radius:3px;box-shadow:0 14px 34px #0005;transform:rotate(1.2deg);display:none;font-size:12.5px;line-height:1.3}
+#hud header{font:500 10.5px var(--mono);letter-spacing:.12em;color:var(--ash);padding-bottom:7px;border-bottom:1px dashed #0002;margin-bottom:5px}
+#hud a{display:grid;grid-template-columns:14px 1fr;gap:7px;align-items:center;padding:3.5px 0;text-decoration:none;font-weight:500}
+#hud svg{width:13px;height:13px;overflow:visible}
+#hud rect{fill:none;stroke:var(--copper);stroke-width:1.4}
+#hud path{fill:none;stroke:var(--copper-d);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:16;stroke-dashoffset:16;transition:stroke-dashoffset .4s}
+#hud a.done path{stroke-dashoffset:0}
+#hud a.now{color:var(--copper-d)}
+#hud.show{opacity:1;pointer-events:auto}
+
+/* hero */
+.stage{position:relative;display:block;width:100%;background:var(--ink)}
+.stage canvas{display:block;width:100%;height:100%}
+#hero{height:min(92vh,880px);min-height:560px}
+.hero-top,.hero-bot{position:absolute;left:0;right:0;text-align:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));pointer-events:none}
+.hero-top{top:45px;display:grid;gap:10px}
+.hero-top h1{font:600 18px/1.5 var(--display);letter-spacing:.14em}
+.hero-bot{bottom:36px;display:grid;gap:10px}
+.tag{font:900 36px/1.4 var(--display);text-wrap:balance;text-shadow:0 2px 16px #0009}
+.hero-bot .note{color:var(--white);text-shadow:0 1px 8px #000c;max-width:44em;margin-inline:auto}
+.hero-bot .mono{font-size:12px;letter-spacing:.12em;color:var(--mist);text-shadow:0 1px 8px #000c}
+/* views */
+.pair{display:grid;gap:44px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+
+.pair>*{min-width:0}
+.defs{display:grid;gap:18px}
+.defs b{font:600 21px/1.4 var(--display);display:block;margin-bottom:2px}
+.views{display:grid;gap:18px}
+.vstage{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:3px;overflow:hidden;background:var(--ink)}
+.vstage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.vstage svg g{opacity:0;transition:opacity .45s}
+.vstage svg g.on{opacity:1}
+.tabs3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+
+.tabs3 button{all:unset;box-sizing:border-box;cursor:pointer;padding:14px 14px 12px;border-top:3px solid #0002;display:grid;gap:3px;line-height:1.55;font-size:14.5px;min-width:0}
+.tabs3 button b{font:600 20px/1.4 var(--display)}
+.tabs3 button[aria-pressed=true]{border-top-color:var(--copper);background:#fff8}
+.tabs3 button:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+/* handbook */
+.book{background:var(--paper);color:var(--ink2);padding:36px;border-radius:3px;box-shadow:0 24px 60px #0007;transform:rotate(-.7deg);position:relative}
+.book header{display:flex;justify-content:space-between;gap:12px;font:500 12px var(--mono);letter-spacing:.12em;color:var(--ash);padding-bottom:12px;border-bottom:1px dashed #0002}
+.check{display:grid;grid-template-columns:24px minmax(0,1fr);gap:14px;padding-block:15px;border-bottom:1px dashed #0002}
+.check:last-child{border-bottom:0}
+.check svg{width:20px;height:20px;margin-top:4px;overflow:visible}
+.check rect{fill:none;stroke:var(--copper);stroke-width:1.6}
+.check path{fill:none;stroke:var(--copper-d);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:32;stroke-dashoffset:0;transition:stroke-dashoffset .5s cubic-bezier(.3,.7,.3,1)}
+.pre .check path{stroke-dashoffset:32}
+.check b{font:600 18.5px/1.5 var(--display);display:block}
+.check span{font-size:15px;line-height:1.7;display:block}
+.post{position:absolute;right:6px;bottom:-22px;width:158px;aspect-ratio:3/2;background:#fffdf8;color:var(--ink2);box-shadow:0 10px 24px #0004;transform:rotate(5deg);padding:9px;font:500 10px/1.3 var(--mono);display:grid;grid-template-columns:1fr 26px;gap:6px;transition:transform 1.1s cubic-bezier(.2,.9,.2,1) .2s}
+.pre .post{transform:translate3d(0,-130px,180px) rotate(22deg)}
+.post i{display:block;border-top:1px solid #0003;margin-top:11px}
+.post em{display:block;height:32px;border:1.4px dashed var(--copper);border-radius:2px}
+.preview{border-top:1px solid #fff3;padding-top:16px;display:grid;gap:5px}
+/* modes */
+.modes{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:40px;align-items:start}
+
+.plan{position:sticky;top:20px;background:#fffdf8;border-radius:3px;box-shadow:0 1px 0 #0002;overflow:hidden}
+
+.plan canvas{display:block;width:100%;aspect-ratio:8/6}
+.mlist{display:grid}
+.mlist button{all:unset;box-sizing:border-box;display:grid;gap:2px;cursor:pointer;padding:13px 0 13px 14px;border-left:3px solid #0001;font-size:14.5px;line-height:1.65;min-width:0}
+.mlist b{font:600 18px/1.45 var(--display)}
+.mlist button[aria-pressed=true]{border-left-color:var(--copper);background:linear-gradient(90deg,#fff9,#fff0)}
+.mlist button:focus-visible{outline:2px solid var(--copper);outline-offset:-2px}
+.bul{display:grid;gap:7px;padding-left:1em;list-style:disc}
+/* chapters */
+.ch{display:grid;gap:0}
+.ch .stage{aspect-ratio:21/9;max-height:78vh}
+
+.coord{position:absolute;left:max(16px,env(safe-area-inset-left,0px));bottom:12px;font:500 11.5px var(--mono);letter-spacing:.1em;text-shadow:0 1px 6px #000c;color:var(--white)}
+.ch .wrap{padding-block:44px 84px;gap:22px}
+.title{font:900 42px/1.3 var(--display);text-wrap:balance}
+.sub{font:600 21px/1.5 var(--display);color:var(--mist)}
+.tb{color:inherit;width:100%;border-collapse:collapse;font-size:15px;line-height:1.65}
+.tb th,.tb td{text-align:left;vertical-align:top;padding:11px 14px 11px 0;border-top:1px solid #fff2}
+.paper .tb th,.paper .tb td{border-top-color:#0002}
+.tb thead th{font:500 12px var(--mono);letter-spacing:.1em;color:var(--ash);border-top:0}
+.ink .tb thead th,.ink2 .tb thead th{color:var(--mist)}
+.tb tbody th{font-weight:700;white-space:nowrap}
+.tscroll{overflow-x:auto;max-width:100%}
+.scene{color:var(--mist);font-size:14.5px}
+.overview{display:grid;gap:0}
+/* cast */
+.castgrp{display:grid;gap:10px}
+.cast{display:grid;grid-template-columns:minmax(120px,.7fr) minmax(0,1fr) minmax(0,1.6fr);gap:4px 22px;padding-block:14px;border-top:1px solid #0002;align-items:baseline}
+.cast b{font:600 21px/1.4 var(--display)}
+.cast small{display:block;font:500 11px var(--mono);letter-spacing:.14em;color:var(--copper-d)}
+
+/* impact */
+.ip{display:grid;gap:18px;padding-top:26px;border-top:1px solid #fff2}
+.bigs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:24px}
+.big{display:grid;gap:5px;align-content:start}
+.big strong{font:900 60px/1.1 var(--display);color:var(--white)}
+.big strong u{text-decoration:none;font-size:.45em;margin-left:.1em}
+.big span{font-size:14.5px;line-height:1.6}
+.big em{font:400 11.5px/1.5 var(--mono);color:var(--mist);font-style:normal}
+.bars{display:grid;gap:10px}
+.barr{display:grid;gap:3px;font-size:14px}
+.barr div:first-child{display:flex;justify-content:space-between;gap:12px}
+.barr .tn{font:500 13px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.track{height:9px;background:#ffffff14;border-radius:1px}
+.fill{height:100%;min-width:2px;background:var(--mist);width:calc(var(--v)/4041.4*100%);transform-origin:left;transition:transform 1.3s cubic-bezier(.2,.8,.2,1)}
+.fill.ig{background:var(--copper)}
+.pre .fill{transform:scaleX(0)}
+.legend{display:flex;gap:16px;font:400 11.5px var(--mono);color:var(--mist);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.todo{border:1.5px dashed #fff5;padding:18px;text-align:center;font-size:14px;color:var(--mist);border-radius:3px}
+.paper .todo{border-color:#0004;color:var(--ash)}
+/* business */
+.levels{display:grid}
+.lv{display:grid;grid-template-columns:minmax(130px,.75fr) minmax(0,1fr) minmax(0,1.5fr);gap:4px 22px;padding-block:15px;border-top:1px solid #0002;font-size:15px;line-height:1.65}
+.lv b{font:600 20px/1.4 var(--display)}
+
+.moments{position:relative;display:grid;padding-left:30px}
+.moments::before{content:"";position:absolute;left:8px;top:18px;bottom:18px;border-left:2px dashed var(--copper)}
+#dot{position:absolute;left:1px;top:0;width:16px;height:16px;border-radius:50%;background:var(--copper-d);transition:transform .9s cubic-bezier(.4,0,.2,1)}
+.mo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:8px 24px;padding-block:18px;border-top:1px solid #0002;transition:background .5s}
+.mo.on{background:linear-gradient(90deg,#fff9,#fff0)}
+.mo b{font:600 20px/1.4 var(--display);display:block}
+.mo small{display:block;font-size:13.5px;color:var(--ash);line-height:1.6}
+.mo p{font-size:14.5px;line-height:1.7}
+.mo blockquote{font:600 18px/1.55 var(--display);color:var(--copper-d);margin-top:4px}
+
+.films{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}
+.film{background:var(--ink);color:var(--white);padding:16px 16px 18px;border-radius:2px;display:grid;gap:12px;grid-template-rows:auto 1fr auto;min-height:230px;position:relative;overflow:hidden}
+.film header{font:500 11px var(--mono);letter-spacing:.1em;color:var(--mist);display:flex;justify-content:space-between;gap:8px}
+.film header i{font-style:normal;color:var(--copper)}
+.film div{display:grid;align-content:center;gap:6px;text-align:center}
+.film p{font:600 15.5px/1.6 var(--display);opacity:.34;transition:opacity .5s}
+.film p.on{opacity:1}
+.film progress{all:unset;display:block;height:2px;width:100%;background:#fff2;overflow:hidden}
+.film .pg{height:2px;background:var(--copper);width:0}
+.steps{display:grid;gap:12px;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;font-size:15px;line-height:1.7}
+.steps li::before{content:counter(s);font:900 20px/1.4 var(--display);color:var(--copper-d)}
+.closing{font:600 20px/1.7 var(--display);max-width:38em}
+/* gantt */
+.gantt{display:grid;gap:0;--m:14}
+.axis{display:grid;grid-template-columns:repeat(14,1fr);font:400 11px var(--mono);color:var(--mist);padding-bottom:6px;position:relative}
+.axis span{border-left:1px solid #fff2;padding-left:3px;white-space:nowrap}
+.axis span.y{color:var(--white);font-weight:500}
+.row{padding-block:13px;border-top:1px solid #fff2;display:grid;gap:7px;position:relative}
+.rowbar{position:relative;height:12px;background:repeating-linear-gradient(90deg,#ffffff0d 0 1px,transparent 1px calc(100%/14))}
+.rb{position:absolute;top:0;bottom:0;left:calc(var(--s)/14*100%);width:calc(var(--l)/14*100%);background:var(--copper);transform-origin:left;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.rb.open{background:linear-gradient(90deg,var(--copper) 40%,#b0865900)}
+.pre .rb{transform:scaleX(0)}
+.today{position:absolute;top:0;bottom:0;left:calc(.1/14*100%);border-left:1.5px solid var(--white);z-index:1;pointer-events:none}
+.today-l{font:500 11px var(--mono);color:var(--white);padding-bottom:4px;padding-left:calc(.1/14*100%)}
+.rt{display:grid;grid-template-columns:minmax(120px,.7fr) minmax(0,1.3fr) minmax(0,1fr);gap:3px 18px;font-size:14.5px;line-height:1.6}
+.rt b{font-family:var(--mono);font-weight:500;font-size:13px}
+.rt i{font-style:normal;color:var(--mist)}
+
+.gwrap{position:relative}
+/* info */
+.info{display:grid;gap:0}
+.info div{display:grid;grid-template-columns:minmax(110px,.32fr) minmax(0,1fr);gap:4px 20px;padding-block:13px;border-top:1px solid #0002;font-size:15px}
+.info dt{font-weight:700}
+.tbd{display:inline-block;border:1px dashed var(--copper-d);color:var(--copper-d);padding:0 8px;border-radius:2px;font-size:13px}
+.co{font:900 28px/1.4 var(--display)}
+#end{height:min(62vh,560px);min-height:360px}
+.endline{position:absolute;left:0;right:0;bottom:27px;text-align:center;font:500 11.5px var(--mono);letter-spacing:.14em;color:var(--mist);text-shadow:0 1px 8px #000c;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* 3D 與照片 */
+.tilt{position:relative;margin:0;transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transform-style:preserve-3d;transition:transform .35s cubic-bezier(.2,.7,.2,1);will-change:transform}
+.ph{border-radius:3px;box-shadow:0 22px 44px #0006;overflow:hidden;background:var(--ink2);display:block}
+.ph img{display:block;width:100%;height:100%;object-fit:cover}
+figure.ph-w{display:grid;gap:7px}
+.ai{position:absolute;right:8px;bottom:8px;font:500 10px/1 var(--mono);letter-spacing:.06em;color:#fff;background:#0009;padding:4px 6px;border-radius:2px;transform:translateZ(26px)}
+figcaption{font-size:13.5px;color:inherit}
+.strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.strip .ph{aspect-ratio:4/3}
+
+.ch .pair{align-items:start}.ch .ph{aspect-ratio:3/2}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:22px}
+.card{display:grid;gap:10px;align-content:start;min-width:0}
+.card .ph{aspect-ratio:3/4;position:relative}
+.card .ph canvas{display:block;width:100%;height:100%}
+.card b{font:600 22px/1.4 var(--display)}
+.card p{font-size:14.5px;line-height:1.65}
+.card small{display:block;font:500 11px var(--mono);letter-spacing:.14em;color:var(--copper-d)}
+.card .cr{font:400 10.5px/1.45 var(--mono);color:var(--ash);word-break:break-word}
+.wait{aspect-ratio:3/4;display:grid;place-items:center;border:1.5px dashed #0004;border-radius:3px;font-size:14px;color:var(--ash);background:#fff5;text-align:center;padding:12px}
+.mo{grid-template-columns:minmax(0,.95fr) minmax(0,.8fr) minmax(0,1.2fr)!important;align-items:center}
+.mo .ph{aspect-ratio:3/2}
+
+.film{isolation:isolate;min-height:260px}
+.film>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.42;z-index:-1}
+.film p{text-shadow:0 1px 8px #000b}
+.vstage,.plan{transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.book{transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) rotate(-.7deg);transform-style:preserve-3d;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.post{transform:translateZ(46px) rotate(5deg)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== v3：整頁一個固定 3D 舞台，文字與手冊卡浮在場景前 ===== */
+#stage{position:fixed;inset:0;width:100%;height:100lvh;z-index:0;display:block;background:var(--ink)}
+#scrim{position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,#0c141a55,#0c141a10 28%,#0c141a18 62%,#0c141a88)}
+#hero,#end{z-index:2}
+#film{position:relative;z-index:1}
+.band,.ch{all:unset}
+.step{min-height:98vh;display:grid;align-content:center;padding-block:99px;overflow:clip;perspective:1500px}
+.step.end{align-content:end}
+.wrap{max-width:1180px;width:100%}
+.over{color:#fff;text-shadow:0 2px 26px #000d,0 1px 4px #000b}
+.over .eyebrow{color:#e4c49d}
+.mega{font:900 108px/1.14 var(--display);text-wrap:balance}
+.big-h{font:900 62px/1.26 var(--display);text-wrap:balance;margin-top:10px}
+.over .lead{font-size:20px;line-height:1.85;font-weight:500}
+.sheet{transform:perspective(1400px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transform-style:preserve-3d;transition:transform .3s cubic-bezier(.2,.7,.2,1);box-shadow:0 34px 80px #000a;border-radius:3px;padding:38px;display:grid;gap:18px;min-width:0}
+.glass{background:rgba(13,22,29,.76);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:#fff;border:1px solid #ffffff24}
+.glass .note,.glass .eyebrow{color:var(--mist)}
+.glass .tb thead th{color:var(--mist)}.glass .tb th,.glass .tb td{border-top-color:#fff3}
+.sheet.paper{background:var(--paper);color:var(--ink2)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:72px;align-items:center}
+.cols.r{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:38px}
+
+.trio b{font:900 56px/1.2 var(--display);display:block}
+.book{transform:perspective(1400px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) rotate(-.7deg)}
+.plan{position:relative;top:0;background:#fffdf8;padding:0;overflow:hidden;aspect-ratio:4/3;display:block}
+.plan canvas{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;display:block}
+.quote{font:900 84px/1.3 var(--display);text-wrap:balance;text-align:center;margin-inline:auto;max-width:15em}
+.mo-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 34px;max-width:680px;margin-inline:auto;font-size:15px}
+
+.mo-meta b{display:block;font:500 11.5px var(--mono);letter-spacing:.12em;color:#e4c49d}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0 80px}
+.who{display:grid;gap:5px;align-content:end;padding-inline:50px 20px}
+.who h3{font:900 56px/1.15 var(--display)}
+.who p{font-size:16px;line-height:1.55;font-weight:500}
+.who small{display:inline-block;font:500 11px var(--mono);letter-spacing:.14em;color:#e4c49d;margin-right:10px}
+.who .cr{font:400 10.5px/1.4 var(--mono);opacity:.75;margin-top:4px}
+.actor{display:grid;gap:12px;max-width:560px}
+.actor small{font:500 11px var(--mono);letter-spacing:.14em;color:#e4c49d;display:block}
+.cr{font:400 11px/1.5 var(--mono);opacity:.85}
+.wait2{display:inline-block;border:1px dashed #fff8;padding:1px 9px;font-size:12.5px;border-radius:2px}
+.cardt{display:grid;gap:9px;align-content:start}
+.cardt b{font:600 26px/1.3 var(--display)}
+.cardt small{font:500 11px var(--mono);letter-spacing:.14em;color:#e4c49d;display:block}
+.cardt p{font-size:14.5px;line-height:1.65}
+.films{gap:14px}.film{background:rgba(13,22,29,.76);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid #ffffff24;isolation:auto;min-height:230px}
+/* 少字：站點式資訊、點開看細節 */
+.stops{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:16px;position:relative;align-items:start;padding-top:26px}
+.stops::before{content:"";position:absolute;left:0;right:0;top:11px;border-top:2px dashed #e4c49d99}
+.stop{position:relative;background:rgba(13,22,29,.8);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;border-radius:3px;padding:12px 14px;box-shadow:0 18px 40px #0008;min-width:0}
+.stop::before{content:"";position:absolute;left:14px;top:-20px;width:11px;height:11px;border-radius:50%;background:#e4c49d}
+.stop:nth-child(even){margin-top:28px}.stop:nth-child(even)::before{top:-48px}
+
+.stop summary{cursor:pointer;font:600 19px/1.4 var(--display);list-style:none}
+.stop summary::-webkit-details-marker{display:none}.stop summary::after{content:" +";color:#e4c49d}.stop[open] summary::after{content:" −"}
+.stop p{font-size:14px;line-height:1.65;margin-top:7px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}.chips span{font-size:13px;padding:3px 10px;border:1px solid #ffffff66;border-radius:99px;background:#0c141a66}
+.narrow{max-width:34em}
+.check span{display:none}.check.open span{display:block}.check b::after{content:" +";color:var(--copper);font-weight:400}.check.open b::after{content:" −"}
+.check{padding-block:9px}
+.book{max-width:440px;justify-self:end;width:100%}
+.imp{display:grid;gap:22px;color:#fff;text-shadow:0 2px 20px #000c}
+.imp .bars{max-width:520px;background:rgba(13,22,29,.72);padding:14px 16px;border-radius:3px;text-shadow:none}
+.imp .big em{color:#e4c49d}
+.imp .todo{max-width:520px;background:#0c141a88;border-color:#fff8;color:#fff;padding:10px;text-shadow:none}
+.imp .note{color:#fff}
+.imp .legend{color:#fff}
+.gantt .rt{grid-template-columns:minmax(0,1fr)}.gantt .rt.hd{display:none}
+.gantt .row{padding-block:7px}.gantt .row:not(.on) .rt span,.gantt .row:not(.on) .rt i{display:none}
+.gantt .row.on .rt span{font:600 21px/1.5 var(--display)}
+.bigtype{display:grid;gap:18px}
+.bigtype strong{font:900 118px/1.08 var(--display);display:block}
+.bigtype strong.b{font-size:62px;margin-left:180px}
+.bigtype strong.c{font-size:62px;text-align:right}
+
+.vb{all:unset;box-sizing:border-box;cursor:pointer;display:block;padding:12px 14px;border-left:3px solid #fff5;min-width:0;font-size:18px;line-height:1.7;font-weight:500}
+.vb b{font:900 56px/1.2 var(--display);display:block}
+.vb[aria-pressed=true]{border-left-color:#e4c49d;background:#0c141a55}
+.vb:focus-visible{outline:2px solid #e4c49d}
+.check{cursor:pointer}.check.off path{stroke-dashoffset:32}
+.scrub{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px 16px;align-items:center;margin-bottom:12px}
+.scrub output{font:500 15px var(--mono);color:#e4c49d;min-width:9em}
+.scrub input{width:100%;accent-color:var(--copper);min-width:0}
+.row{transition:opacity .25s}.gantt.live .row{opacity:.32}.gantt.live .row.on{opacity:1}
+#strip{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;z-index:3;display:flex;gap:2px;background:#0c141acc;padding:3px 5px;border-radius:3px;max-width:calc(100% - 20px)}
+#strip a{color:#fff;text-decoration:none;font:500 12px var(--display);padding:4px 8px;opacity:.6;border-radius:2px}
+#strip a.now{opacity:1;background:var(--copper);color:#16222c}
+
+
+#aimark{position:fixed;left:max(14px,env(safe-area-inset-left,0px));bottom:44px;z-index:3;font:500 10.5px var(--mono);letter-spacing:.06em;color:#fff;background:#0009;padding:4px 7px;border-radius:2px;transition:opacity .4s;pointer-events:none}
+.coord{position:static;font-size:12.5px;margin-top:8px;display:block;padding:0}
+
+/* ===== v4：固定 16:9 翻頁 ===== */
+html,body{height:100%;overflow:hidden;background:#090e12;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+#rot{display:none}@media(orientation:portrait) and (max-width:820px){#rot{display:block;position:fixed;left:0;right:0;bottom:12%;text-align:center;color:#a9c0cf;font:500 15px var(--body)}}
+#deck{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);overflow:hidden;background:var(--ink);box-shadow:0 0 0 1px #000}
+#stage{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+#scrim{position:absolute;inset:0;z-index:0}
+#pages{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;z-index:1}
+#film{position:absolute;inset:0;cursor:default;z-index:auto}
+#film section{display:contents}
+.step{position:absolute;inset:0;min-height:0;padding:64px 96px 76px;display:grid;align-content:center;overflow:hidden;opacity:0;visibility:hidden;transition:opacity .55s,visibility 0s .55s}
+.step.on{opacity:1;visibility:visible;transition:opacity .7s .25s,visibility 0s}
+.step.end{align-content:end}
+.step .wrap{max-width:none;padding:0;width:100%;display:block}
+.step.on .sheet,.step.on .book{animation:in3d 1s cubic-bezier(.2,.8,.2,1) both .2s}
+@keyframes in3d{from{transform:perspective(1400px) rotateX(16deg) rotateY(-10deg) translateZ(-160px);opacity:0}}
+#hero,#end{padding:0;background:var(--ink)}
+#hero canvas,#end canvas{position:absolute;inset:0;width:100%;height:100%}
+#hero,#end{height:auto;min-height:0;z-index:0}
+#nav{position:absolute;left:0;right:0;bottom:0;height:58px;z-index:6;display:flex;align-items:center;gap:8px;padding:0 24px;background:linear-gradient(0deg,#0c141ae6,#0c141a00);color:#fff;font:500 18px var(--mono)}
+#nav button{all:unset;cursor:pointer;padding:6px 13px;border-radius:2px;font:500 19px var(--display);color:#fff;opacity:.68}
+#nav button:hover{opacity:1}#nav button:focus-visible{outline:2px solid #e4c49d}
+#nav button.now{opacity:1;background:var(--copper);color:#16222c}
+#nav .sp{flex:1}
+#nav .pn{min-width:92px;text-align:center}
+#aimark{position:absolute;left:auto;right:18px;bottom:54px;z-index:6}
+#strip{display:none}#hud{display:none}
+#bar{position:absolute;top:0;left:0;height:3px;width:100%;z-index:7}
+.mega{font-size:96px}
+.quote{font-size:72px}
+.imp{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 44px;align-items:start}
+.imp h3,.imp>.note,.imp .legend{grid-column:1/3}
+.imp .bars{max-width:none}
+.imp .todo{max-width:none;align-self:end}
+.step .big-h{font-size:54px}
+.gantt .row{padding-block:5px}.scrub{margin-bottom:6px}
+.stops{padding-top:24px}
+.book{max-width:470px}
+img.crisp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:0;pointer-events:none;transition:opacity .2s}
+.step.on img.crisp{opacity:1;transition:opacity .7s 1.2s}
+.step .duo{position:relative;z-index:1}.step>.wrap>.eyebrow{z-index:1}
+/* 統一頁首、拿掉標記 */
+#aimark,.post{display:none!important}
+.step .eyebrow{display:none}.mc .eyebrow{display:block}
+#sec{position:absolute;left:0;right:0;top:20px;text-align:center;z-index:6;font:500 17px var(--mono);letter-spacing:.16em;color:#e4c49d;text-shadow:0 1px 8px #000c;pointer-events:none}
+.step:not(#hero):not(#end){padding-top:64px}
+.solid{background:var(--ink)}
+/* 目錄 */
+.tocg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:1240px;margin:30px auto 0}
+.tocg button{all:unset;cursor:pointer;box-sizing:border-box;background:rgba(13,22,29,.8);color:#fff;padding:22px 26px;border-radius:3px;font:600 24px/1.4 var(--display);display:grid;grid-template-columns:48px 1fr;align-items:center;box-shadow:0 14px 30px #0007}
+.tocg b{color:#e4c49d;font-weight:900}.tocg button:focus-visible{outline:2px solid #e4c49d}
+/* 拍攝方式一頁 */
+#pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:1240px;margin:20px auto 0}
+.pc{background:#fffdf8;color:var(--ink2);border-radius:3px;padding:12px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px;align-items:center;height:176px;box-shadow:0 14px 30px #0007}
+.pc canvas{width:200px;height:150px;display:block}.pc h4{font:600 18px/1.35 var(--display);margin-bottom:3px}.pc p{font-size:12.5px;line-height:1.5}
+/* 四部作品 */
+.wks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;max-width:1240px;margin:22px auto 0}
+.wks article{display:grid;gap:4px;text-align:center;justify-items:center;background:rgba(13,22,29,.8);padding:14px;border-radius:3px;color:#fff;align-content:start;box-shadow:0 14px 30px #0007}
+.wks img{width:100%;aspect-ratio:5/7;object-fit:cover;object-position:top;border-radius:2px;margin-bottom:6px}
+.wks h4{color:#e4c49d;font-size:14px}.wks b{font:600 18px/1.35 var(--display)}.wks p{font-size:13.5px}
+/* 影響力 */
+.impb{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;height:680px;align-items:center;max-width:1240px;margin:12px auto 0!important}
+.il{display:grid;gap:18px;justify-items:center;text-align:center}.il .bigs{display:flex;justify-content:center;gap:28px;width:100%}.il .big{flex:1;justify-items:center;text-align:center}
+.ip{font-size:16px;line-height:1.8}
+.xg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.xg img{width:100%;aspect-ratio:64/88;object-fit:contain;object-position:bottom;background:#1a1a1c;border-radius:3px}
+.ig{display:grid;gap:12px}.ig img{width:100%;height:296px;object-fit:cover;object-position:top;border-radius:3px}
+.pst{display:grid;justify-items:center}.pst img{height:600px;aspect-ratio:5/7;object-fit:cover;border-radius:3px;box-shadow:0 14px 30px #0009}
+/* 團隊一人一頁 */
+.tm{display:grid;grid-template-columns:320px minmax(0,1fr) 520px;gap:44px;align-items:center;height:720px;max-width:1408px;margin:0 auto;color:#fff}
+.tp{width:320px;height:430px;object-fit:cover;object-position:top;border-radius:3px}
+.tw{display:grid;place-items:center;border:1.5px dashed #ffffff55;color:#a9c0cf;font-size:14px;border-radius:3px}
+.ti{display:grid;gap:12px;text-align:center;justify-items:center}.ti .mega{font-size:64px!important;line-height:1.15}.rl{color:#e4c49d;font:600 20px var(--display)}.tb2{font-size:16px;line-height:1.7}.wk{font-size:13.5px;line-height:1.9;color:#d6dfe6}
+.tg{display:grid;grid-template-columns:repeat(2,250px);gap:14px;justify-content:center}.tg img,.tg .tw{width:250px;height:345px;object-fit:cover}.tg img{border-radius:3px}
+.tg .wide{grid-column:1/3;width:100%!important;height:345px}
+.duo.t3{grid-template-columns:repeat(3,1fr)}.duo.t1{grid-template-columns:1fr}.duo.t3 .who p{font-size:14px}
+.tm.solo{grid-template-columns:1fr;justify-items:center}
+.duo{gap:0}.duo.t4{grid-template-columns:repeat(4,1fr)}.who{padding:0 14px}.who h3,.duo.t3 .who h3,.duo.t4 .who h3{font:900 38px/1.2 var(--display)!important}.who p,.duo.t3 .who p{font-size:15px}
+.stops:has(>:nth-child(5)){grid-auto-flow:row;grid-template-columns:repeat(6,minmax(0,1fr))}.stops:has(>:nth-child(5)) .stop{grid-column:span 2}.stops:has(>:nth-child(5)) .stop:nth-child(4){grid-column:2/span 2}
+.stop summary{font-size:21px}.stop p{font-size:15.5px}
+.pc{height:226px;grid-template-columns:232px minmax(0,1fr)}.pc canvas{width:232px;height:174px}.pc h4{font-size:20px}.pc p{font-size:14.5px}
+.duo{align-items:start}.who{align-content:start}
+.stop .ex{color:#e4c49d;font-size:14px}
+.step:has(.tm3){align-content:center}
+.rl{letter-spacing:.2em}
+.tph{position:absolute;top:0;bottom:0;height:100%;width:640px;object-fit:cover;object-position:top}
+.tph.l{left:0;-webkit-mask-image:linear-gradient(90deg,#000 60%,#0000);mask-image:linear-gradient(90deg,#000 60%,#0000)}
+.tph.r{right:0;-webkit-mask-image:linear-gradient(270deg,#000 60%,#0000);mask-image:linear-gradient(270deg,#000 60%,#0000)}
+.tm2{position:relative;z-index:1;width:900px;display:grid;gap:12px;color:#fff;text-align:center;justify-items:center}
+.tm2.l{margin-left:auto;margin-right:-40px}.tm2.r{margin-left:-40px}
+.tm2 .mega{font-size:72px!important;line-height:1.1}
+.tg2{display:flex;gap:14px;justify-content:center;margin:10px 0}.tg2 img{width:190px;height:270px;object-fit:cover;border-radius:3px;box-shadow:0 12px 26px #0009}
+.pcards{display:flex;justify-content:center;gap:40px;margin-top:26px}
+.pcard{width:280px;display:grid;gap:6px;align-content:start;text-align:center;color:#fff}
+.pcard figure{position:relative;margin:0 0 6px;aspect-ratio:3/4;border-radius:4px;overflow:hidden;box-shadow:0 18px 40px #0009}
+.pcard img{width:100%;height:100%;object-fit:cover;display:block}
+.pcard figcaption{position:absolute;left:0;right:0;bottom:12px;font:900 30px/1.2 var(--display);color:#fff}
+.pcard p{font-size:14px;line-height:1.5}.pcard small{display:block;font:500 11px var(--mono);letter-spacing:.14em;color:#e4c49d}
+.step:has(.pcards){align-content:start}
+.step.solid:has(.pcards) .big-h{font-size:44px!important}
+.tgrid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;max-width:1240px;margin:26px auto 0!important;align-items:start;padding:30px}
+.tcard{display:grid;gap:10px;text-align:center;justify-items:center}.tcard strong{font:900 56px/1.1 var(--display)}.tcard u{text-decoration:none;font-size:.42em;margin-left:.1em}.tcard span{font-size:15px;line-height:1.6}.tcard em{font:400 11.5px/1.5 var(--mono);color:#a9c0cf;font-style:normal}
+.press{list-style:none;display:grid;gap:9px;text-align:left;width:100%;font-size:14.5px;line-height:1.55}.press b{display:block;color:#e4c49d;font:500 12px var(--mono);letter-spacing:.06em}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-width:1240px;margin:34px auto 0}.three .sheet{gap:12px;text-align:center}.three h3{font:900 30px/1.3 var(--display)!important;color:#e4c49d}.three p{font-size:17px;line-height:1.85}
+.step:has(.three){align-content:center}
+.ev{display:grid;gap:10px;width:100%}.ev.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.ev.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ev figure{margin:0;display:grid;gap:3px}.ev img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:top;border-radius:3px;background:#fff}.ev .xh img{object-position:bottom;background:#1a1a1c}
+.ev.c2 img{aspect-ratio:4/3}.ev figcaption{font:500 11px var(--mono);color:#e4c49d;text-align:center}
+.impb{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:30px}
+.evrow{max-width:1240px;margin:14px auto 0}.evrow .ev img{aspect-ratio:16/7}
+.tm4{display:grid;gap:18px;justify-items:center;color:#fff;text-align:center}.thd{display:flex;gap:26px;align-items:center;justify-content:center;text-align:left}.tph2{width:130px;height:170px;object-fit:cover;object-position:top;border-radius:3px;box-shadow:0 10px 24px #0009}.thd .mega{font-size:52px!important;line-height:1.15}
+.tstrip{display:flex;gap:12px;justify-content:center}.tstrip img{width:190px;height:272px;object-fit:cover;border-radius:3px;box-shadow:0 12px 26px #0009}.tm4 .wk{max-width:1200px}
+.spotp{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:26px;max-width:1300px;margin:18px auto 0!important;padding:22px 26px;align-items:start}.spotp h3{font:900 28px/1.3 var(--display)!important;text-align:center;color:#e4c49d;margin-bottom:8px}
+.spots{list-style:none;display:grid;gap:8px}.spots li{display:grid;grid-template-columns:42px minmax(0,1fr);gap:0 8px;font-size:14px;line-height:1.4}.spots i{grid-row:1/3;font-style:normal;color:#e4c49d;font:500 13px var(--mono)}.spots b{font:600 16.5px/1.35 var(--display)}.spots span{color:#d6dfe6;font-size:13px}
+.spotp .ev img{aspect-ratio:4/5;object-position:bottom;background:#1a1a1c}.spotp .ev{gap:8px}
+.tb2{max-width:760px;margin-top:6px;font-size:15px!important}.tstrip img{width:164px;height:234px}
+.wk{font-size:13.5px;line-height:1.75}
+/* 版面規格：邊界 96；標題兩級（封面 72、內頁 44）；文字置中對稱；分欄一律等寬；內容框寬 1240 */
+.step{padding:64px 96px 76px}
+.step .mega,.step h3.mega{font:900 72px/1.2 var(--display)}
+.step .big-h,.step h2.big-h,.step h3.big-h,.step .cols h3{font:900 44px/1.3 var(--display)!important;margin:6px 0 0}
+.step .eyebrow{font-size:13px}
+.step .lead{font-size:18px;line-height:1.8}
+.step h3:not(.mega):not(.big-h){font:600 26px/1.4 var(--display)}
+.step>.wrap>.over{max-width:1100px!important;margin-inline:auto;text-align:center;justify-items:center}
+.step>.wrap>.over .lead{margin-inline:auto;max-width:44em}
+.narrow{max-width:none}
+.step.end{align-content:end;padding-bottom:96px}
+.step:has(.sheet:not(.plan)),.step:has(.stops),.step:has(.imp),.step:has(#mgrid),.step:has(#pgrid),.step:has(.wks),.step:has(.tocg),.step:has(#films){align-content:start;padding-top:64px}
+.step>.wrap>.sheet,.step>.wrap>.stops,.step>.wrap>.imp,.step>.wrap>#mgrid{max-width:1240px;margin-inline:auto}
+.step>.wrap>.sheet,.step>.wrap>.stops,.step>.wrap>.imp{margin-top:24px!important}
+/* 分欄 */
+.cols,.cols.r{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:center}
+.cols>.over{text-align:center;justify-items:center}
+.plan{width:100%}
+.book{max-width:none;justify-self:stretch;transform:perspective(1400px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));padding:18px 26px}
+.check{padding-block:6px;cursor:default}.check b::after{content:none}.check span{display:block;font-size:13.5px;line-height:1.5}.check b{font-size:16px}
+/* 站點：等高、等寬、不交錯 */
+.stops{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);align-items:stretch;gap:14px;padding-top:0}
+.stops::before,.stop::before{display:none}
+.stop,.stop:nth-child(even){margin-top:0;pointer-events:none}
+.stop summary::after{content:none!important}
+.chips{justify-content:center}
+/* 影響力 */
+.imp{grid-template-columns:minmax(0,1fr);justify-items:center;gap:18px;text-align:center}
+.imp h3,.imp>.note,.imp .legend{grid-column:auto;justify-content:center}
+.imp .bigs{display:flex;justify-content:center;gap:40px;width:100%}.imp .big{width:370px;justify-items:center}
+.imp .bars,.imp .todo{width:860px;max-width:none;text-align:left}
+/* 品牌時刻一頁 */
+#mgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:20px!important}
+.mc{position:relative;height:296px;border-radius:3px;overflow:hidden;box-shadow:0 16px 36px #0008;background:#0c141a}
+.mc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mc div{position:absolute;left:0;right:0;bottom:0;padding:44px 16px 12px;background:linear-gradient(0deg,#0c141af2 30%,#0c141a00);text-align:center;color:#fff}
+.mc blockquote{font:600 20px/1.4 var(--display);margin:3px 0}
+.mc p{font-size:12.5px;color:#d6dfe6;line-height:1.4}.mc .eyebrow{color:#e4c49d;font-size:12px}
+/* 短片 */
+.step .films{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));max-width:1240px;margin:24px auto 0;width:100%}
+.film{height:280px}
+/* 陣容 */
+.step>.wrap>.eyebrow{left:0!important;right:0;top:40px!important;text-align:center}
+.duo{grid-template-columns:1fr 1fr;gap:0}.who{justify-items:center;text-align:center;padding:0 40px}
+.who h3{font:900 44px/1.2 var(--display)!important}
+.who p{font-size:15px}
+.trio{justify-items:center;text-align:center}.vb{text-align:center;border-left:0;border-top:3px solid #fff5}.vb[aria-pressed=true]{border-left:0;border-top-color:#e4c49d}
+.who small{margin-right:8px}
+.hero-bot{bottom:58px!important}.endline{bottom:58px!important}
+
+/* 比重校正：內容在頁面垂直置中；旅程頁文字上、站點下，中間留給畫面 */
+.step:has(.three),.step:has(.pcards),.step:has(.spotp),.step:has(.tm4),.step:has(.impb),.step:has(.tgrid),.step:has(#pgrid),.step:has(.wks),.step:has(#mgrid),.step:has(.tocg),.step:has(.tm3),.step:has(#films),.step:has(#gantt){align-content:center!important;padding-top:56px!important;padding-bottom:70px!important}
+.step:has(>.wrap>.stops){align-content:stretch!important;padding-top:64px!important;padding-bottom:78px!important}
+.step:has(>.wrap>.stops)>.wrap{display:grid!important;grid-template-rows:auto 1fr auto auto;height:100%}
+.step:has(>.wrap>.stops)>.wrap>.stops{grid-row:3;margin-top:0!important}
+.step:has(>.wrap>.stops)>.wrap>.chips,.step:has(>.wrap>.stops)>.wrap>.note,.step:has(>.wrap>.stops)>.wrap>.closing{grid-row:4;margin-top:12px!important}
+.step:has(>.wrap>.stops)>.wrap>.over:first-child{grid-row:1}
+.three{gap:24px;margin-top:40px}.three .sheet{padding:34px 26px;align-content:start}.three h3{font-size:30px!important}.three p{font:600 21px/1.9 var(--display)}
+.spotp{padding:28px 32px;gap:34px}.spots{gap:12px}.spots b{font-size:19px}.spots span{font-size:14.5px}.spots li{grid-template-columns:48px minmax(0,1fr)}
+.pcards{margin-top:30px}.pcard p{font-size:15px}
+.tm4{gap:22px}.thd .mega{font-size:60px!important}.tb2{font-size:17px!important;line-height:1.7;max-width:900px}.tph2{width:150px;height:196px}.tstrip img{width:178px;height:254px}.wk{font-size:15px;line-height:1.8;max-width:1260px}
+.tm3 .mega{font-size:84px!important}
+
+.mirror{padding:0!important}.mline{position:absolute;left:0;right:0;top:50%;height:1px;background:#ffffff40;z-index:1}
+.mtop,.mbot{position:absolute;left:0;right:0;text-align:center;z-index:1;color:#fff}.mtop{bottom:50%;padding-bottom:14px}.mbot{top:50%;padding-top:14px}
+.mtop b,.mbot b{display:block;font:900 92px/1.12 var(--display)}.mtop p,.mbot p{font:600 26px/1.5 var(--display)}
+.mcap{font:600 22px/1.5 var(--display)!important;color:#e4c49d}.mtop .mcap{margin-bottom:30px}.mbot .mcap{margin-top:30px}
+.ev.c4{grid-template-columns:repeat(4,minmax(0,1fr))}.evrow .ev.c4 img{aspect-ratio:16/9}
+.big strong,.tcard strong{white-space:nowrap}.il .big strong{font-size:50px}.il .big strong u{font-size:20px}.il .bigs{gap:18px}.tcard strong{font-size:52px}.tcard u{font-size:22px}
+.step p,.step span,.step li,.step figcaption,.step blockquote,.step summary,.step dd{text-wrap:pretty}
+.step h2,.step h3,.step .quote{text-wrap:balance}
+.stop p,.pc p,.pcard p,.big span,.tcard span,.mc p,.mc blockquote{text-wrap:balance}
+.clips{display:grid;gap:0;width:100%;padding:6px 4px}
+.clip{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:3px;background:#f5f0e9;color:#22303c;padding:14px 18px 12px;border-radius:3px;box-shadow:0 10px 24px #0007;position:relative;text-align:left}
+.clip+.clip{margin-top:-6px}.clip:nth-child(odd){transform:rotate(-.8deg)}.clip:nth-child(even){transform:rotate(.7deg) translateX(10px);width:calc(100% - 10px)}
+.clip:focus-visible{outline:2px solid #e4c49d}
+.clip small{font:500 12.5px var(--mono);letter-spacing:.08em;color:#8d6740}.clip b{font:600 19px/1.4 var(--display)}.clip i{font-style:normal;font-size:12px;color:#6d7780;text-align:right}
+.clips.row{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:0}.clips.row .clip,.clips.row .clip+.clip{margin:0;width:100%;transform:none}.clips.row .clip b{font-size:16px}
+#lb{position:absolute;inset:0;z-index:20;background:rgba(7,11,16,.94);display:none;grid-template-rows:auto 1fr;padding:30px 60px 70px;gap:14px}#lb.on{display:grid}
+#lb header{display:flex;justify-content:space-between;color:#fff;font:600 22px var(--display);gap:20px}#lb button{all:unset;cursor:pointer;font:500 16px var(--body);border:1px solid #fff6;padding:4px 14px;border-radius:3px;color:#fff;white-space:nowrap}
+#lbg{display:flex;gap:14px;justify-content:center;align-items:center;min-height:0}#lbg img{max-height:740px;min-width:0;max-width:100%;object-fit:contain;border-radius:3px;flex:0 1 auto;height:100%}
+.step:has(.pcards)::before,.step:has(.tm4)::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(9,14,19,.72),rgba(9,14,19,.5) 75%);pointer-events:none}
+.step:has(.pcards)>.wrap,.step:has(.tm4)>.wrap{position:relative;z-index:1}
+.pcard p,.wk,.tb2{text-shadow:0 1px 8px #000d}.pcard{color:#fff}
+.glass,.stop,.film{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.glass{background:rgba(13,22,29,.86)!important}.stop{background:rgba(13,22,29,.9)!important}.film{background:rgba(13,22,29,.88)!important}
+.step{transition:opacity .22s ease,visibility 0s .22s!important;z-index:1!important}.step.on{transition:opacity .55s ease .12s,visibility 0s!important;z-index:2!important}
+/* 依序浮現 */
+@keyframes rise{from{opacity:0;translate:0 22px}to{opacity:1;translate:0 0}}
+.step.on .anim{animation:rise .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*90ms + .3s)}
+/* 可點提示：脈動圓點＋動態文字 */
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(176,134,89,.75)}70%{box-shadow:0 0 0 12px rgba(176,134,89,0)}100%{box-shadow:0 0 0 0 rgba(176,134,89,0)}}
+@keyframes nudge{0%,100%{translate:0 0}50%{translate:5px 0}}
+.clip::after,.vb::after,.tocg button::after{content:"";position:absolute;right:14px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--copper);animation:ping 1.8s infinite}
+.vb,.tocg button{position:relative}
+.vb[aria-pressed=true]::after{animation:none;background:#e4c49d}
+.clip i{display:block;color:#8d6740;font-weight:600;font-size:13px}.clip i::after{content:" →";display:inline-block;animation:nudge 1.3s ease-in-out infinite}
+.clip:hover,.vb:hover,.tocg button:hover{filter:brightness(1.08)}
+.hint{display:block;text-align:center;font:600 15px var(--body);color:#e4c49d;margin-top:12px;text-shadow:0 1px 8px #000c}.hint::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--copper);margin-right:9px;vertical-align:1px;animation:ping 1.8s infinite}
+.check svg{cursor:pointer}.pre .check svg,.check svg rect{transition:stroke .2s}
+#mu{position:relative!important}#mu.idle::after{content:"";position:absolute;right:2px;top:2px;width:7px;height:7px;border-radius:50%;background:var(--copper);animation:ping 1.8s infinite}
+/* 點開動態 */
+@keyframes lbin{from{opacity:0}to{opacity:1}}@keyframes lbimg{from{opacity:0;scale:.94}to{opacity:1;scale:1}}
+#lb.on{animation:lbin .25s ease}#lb.on img{animation:lbimg .4s cubic-bezier(.2,.8,.2,1) both}
+@media(prefers-reduced-motion:reduce){.anim,.clip::after,.vb::after,.tocg button::after,.hint::before,.clip i::after,#mu.idle::after,#lb.on,#lb.on img{animation:none!important}}
+/* 精緻度修正 */
+.gantt .row:not(.on) .rt span,.gantt .row:not(.on) .rt i{display:block!important;opacity:.72}.gantt .row .rt span{font-size:14px}.gantt .row.on .rt span{font-size:15px!important;opacity:1}.gantt .row{padding-block:2px!important;gap:2px!important}.gantt .rt{display:grid!important;grid-template-columns:120px minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:baseline;font-size:14px}.gantt .rt>*{font-size:14px!important;line-height:1.35!important;white-space:nowrap;overflow:hidden;text-overflow:clip;font-family:inherit!important;font-weight:500!important}.gantt .rt>*{color:#dfe6ea!important;opacity:1!important}.gantt .row:not(.on) .rt span,.gantt .row:not(.on) .rt i{opacity:.88!important}.step:has(#gantt) .sheet{background:rgba(10,17,23,.93)!important}.gantt .row.on .rt>*{color:#fff;font-weight:700!important}.gantt .rowbar{height:7px!important}.step:has(#gantt) .big-h{font-size:40px!important}.step:has(#gantt) .sheet{margin-top:10px!important;padding:14px 22px!important}.step:has(#gantt) .hint{margin:2px 0 6px}
+.step:has(>.wrap>.stops.lv5){align-content:center!important}.step:has(>.wrap>.stops.lv5)>.wrap{display:block!important;height:auto!important}.step:has(>.wrap>.stops.lv5)>.wrap>.stops{margin-top:34px!important}.gantt .rb{opacity:1}.gantt .row:not(.on) .rb{opacity:.6!important}
+.film p{opacity:1!important;transform:none!important}
+#checks~.hint{color:#705332;text-shadow:none}
+.pcard small{font-size:14px!important;color:#d8b987}
+.big em,.tcard em,.tgrid em{font-size:14px!important;line-height:1.45;opacity:.92}.press b{font-size:13.5px!important}.step .note{font-size:14px!important}
+.stop p,.stop summary,.mc p,.mc blockquote,.tgrid span,.clip b,.tb2,.pcard p,.three p,.film p{text-wrap:balance}.tb2,.wk{text-wrap:pretty}.wk .nb{white-space:nowrap}
+.crew{display:grid;grid-template-columns:repeat(3,260px);gap:28px;justify-content:center;margin-top:34px}.crew>div{padding:34px 20px;background:rgba(13,22,29,.86);border-top:2px solid var(--copper);display:grid;gap:12px;text-align:center}.crew b{font:900 44px/1.2 var(--display);color:#fff}
+.step:has(#views)::before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(8,14,20,.86) 12%,rgba(8,14,20,.6) 58%,rgba(8,14,20,.05) 88%);pointer-events:none}.step:has(#views)>.wrap{position:relative;z-index:1}.step:has(#views){padding-bottom:128px!important}#vlead{font-size:30px!important;line-height:1.55;font-weight:600}
+.step:has(#checks){align-content:center!important}.spotp .ev img{cursor:zoom-in}.spotp .ev figcaption{font-size:13.5px!important}
+.step .lead{text-wrap:balance}
+.stat{display:inline-block;margin-left:14px;padding:3px 12px;border:1px solid #e4c49d;border-radius:99px;font:600 15px var(--body);color:#e4c49d;vertical-align:middle;letter-spacing:.08em;text-shadow:none}.stat.wide{display:table;margin:14px auto 0}
+.theme{font:600 22px/1.4 var(--display);color:#e4c49d;letter-spacing:.08em}
+.vb small{display:block;font:500 13px var(--mono);letter-spacing:.2em;color:#e4c49d;margin-bottom:2px}
+</style>
+<div id="deck"><canvas id="stage" aria-hidden="true"></canvas><div id="scrim"></div><span id="aimark"></span><div id="pages"><div id="sec"></div><div id="bar" aria-hidden="true"></div><nav id="nav" aria-label="翻頁"></nav><div id="film">
+<div class="step stage on" id="hero" data-scene="zurich">
+  <canvas id="c-hero" aria-label="水面上的製圖字標「城裡」，水中倒影是上下顛倒的「戲外」"></canvas>
+  <canvas id="c-hp" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;transition:opacity .9s"></canvas>
+  <div class="hero-top"><span class="eyebrow" style="color:var(--mist)">WHERE STORIES LIVE</span><h1>《城裡戲外》節目企劃（招商用）</h1></div>
+  <div class="hero-bot">
+    <p class="tag">在戲裡的場景，做戲外的自己。</p>
+    <p class="mono">紀實旅行節目 ｜ 好好娛樂有限公司 ｜ 2026.11</p>
+    <p class="note">本季規劃四個城市篇章。演員與平台為邀約、洽談規劃，以簽約結果為準。</p>
+  </div>
+</div>
+
+<section id="toc"><div class="step " data-scene="zurich"><div class="wrap"><div class="over"><h2 class="mega">你還記得那場戲。</h2><p style="font:600 34px/1.5 var(--display);margin-top:14px">現在的你，會怎麼走過那座城？</p><p style="font:600 22px/1.6 var(--display);margin-top:26px;color:#e4c49d">那座城，那部戲，那個你。</p></div></div></div>
+<div class="step " data-scene="zurich"><div class="wrap"><div class="over"><h2 class="big-h">大綱</h2></div><div class="tocg"><button data-go="core"><b>一</b>節目核心宗旨</button><button data-go="outline"><b>二</b>節目大綱</button><button data-go="chapters"><b>三</b>四部作品</button><button data-go="impact"><b>四</b>節目影響力</button><button data-go="business"><b>五</b>商務販售方式</button><button data-go="shoot"><b>六</b>拍攝方式</button><button data-go="schedule"><b>七</b>製作時程</button><button data-go="broadcast"><b>八</b>播出資訊</button><button data-go="team"><b>九</b>製作團隊</button></div><p class="note over" style="color:#fff;text-align:center;margin-top:20px">開放整季、篇章與旅程場景合作，素材與使用權另議。</p></div></div>
+</section><section id="core"><div class="step " data-scene="zurich"><div class="wrap"><div class="over"><h2 class="big-h">有些地方，我們是先在戲裡去過的</h2></div><div class="three"><div class="sheet glass"><h3>拍攝的感覺</h3><p>沒有台詞，也沒有重來。<br>攝影機只是跟著走，<br>等一個人在街角停下來，<br>等餐桌上那句話自己說出口。</p></div><div class="sheet glass"><h3>拍攝的內容</h3><p>一本手冊，一筆旅費，<br>幾個要一起走的人。<br>他們走過戲裡的街，也在戲外迷路、問路，<br>每晚回到同一張桌子。<br>最後寫一張明信片，<br>寄給剛剛還坐在身邊的人。</p></div><div class="sheet glass"><h3>想帶出來的意義</h3><p>觀眾記得的，是那部戲。<br>回到這裡的人，<br>記得的是那時候的自己。<br>戲早就演完了，<br>城市還在，人也還在往前走。</p></div></div></div></div>
+<div class="step " data-scene="zurich"><div class="wrap"><div class="over"><h2 class="big-h">一個有昔日情感，又陪你開啟新旅程的好朋友</h2></div><div class="three"><div class="sheet glass"><h3>回憶戲劇</h3><p>回到作品發生的城市，不重演名場面，只重新問一次：今天的我，還相信當年的答案嗎？</p></div><div class="sheet glass"><h3>團隊互動</h3><p>當年合作的夥伴和第一次同行的旅人，一起選路、一起吃飯，在一趟旅程裡重新認識彼此。</p></div><div class="sheet glass"><h3>自我解鎖</h3><p>城市保存著記憶，人已經往前走了。重新站回原地，看見現在的自己。</p></div></div><p class="lead over" style="text-align:center;margin-top:26px">主力觀眾：30～45 歲為主的高消費族群，看戲劇、看電影，也愛旅遊和美食。</p></div></div>
+<div class="step " data-scene="zurich"><div class="wrap"><div class="over" style="display:grid;gap:18px;max-width:900px"><span class="eyebrow">一、節目核心宗旨</span><h2 class="mega">跟著一部戲，重新認識一座城</h2><p class="lead" style="max-width:36em">觀眾記得戲裡的街角、湖邊和小館子，拿著劇照去找。<br>有旅伴演過這部戲，也有人第一次循著作品認識這座城。<br>《城裡戲外》讓對一部戲的喜歡，與對一座城的感情，在同一個地方相遇。</p></div></div></div>
+<div class="step mirror" data-scene="zurich" data-mirror="1"><span class="mline"></span><div class="mtop over"><p class="mcap">城裡和戲外之間，是一面鏡子。</p><b>城裡</b><p>演員曾經演過的故事</p></div><div class="mbot over"><b>戲外</b><p>此刻真實發生的故事</p><p class="mcap">照見的，是大家沒說出口的真心話。</p></div></div>
+<div class="step end" data-scene="zurich"><div class="wrap"><div class="over" style="display:grid;gap:30px"><p class="lead" id="vlead" style="max-width:40em;transition:opacity .35s">那條街你從沒去過，<br>閉上眼卻知道下一個轉角是什麼。</p><p class="lead" style="max-width:40em;font-size:.82em;opacity:.8">同一個地方，有三種心情</p><div class="trio" id="views"><button class="vb" data-to="core_three" data-lead="那條街你從沒去過，<br>閉上眼卻知道下一個轉角是什麼。" aria-pressed="true"><small>劇迷</small><b>想念</b>戲早就演完了，還是想去那裡站一下。</button><button class="vb" data-to="zurich_people" data-lead="那個角色演完，就還回去了。<br>多年後再碰面，沒有台詞，也沒有人喊卡。" aria-pressed="false"><small>演員</small><b>重逢</b>再走一趟，會遇見當年的自己。</button><button class="vb" data-to="walk" data-lead="你不用補課。<br>這座城對你沒有回憶，每條街都是第一次。" aria-pressed="false"><small>旅人</small><b>初見</b>沒看過這部戲，這座城才剛開始。</button></div></div></div></div>
+</section><section id="outline"><div class="step " data-scene="postcard"><div class="wrap"><div class="cols r"><div class="over" style="display:grid;gap:16px"><span class="eyebrow">二、節目大綱</span><h2 class="big-h">從戲裡出發，走一段自己的旅程</h2><p class="lead">每一個篇章：一部戲、一座城、一組旅伴。</p><p class="lead">他們以自己的身分，走進旅行。<br>戲裡的場景標在地圖上，接下來的路，留給他們自己選。<br>一起選餐廳，臨時改路線，拍一張戲裡沒有的合照。</p><div class="glass sheet" style="padding:16px 18px;gap:4px"><h4>前導影片</h4><p style="font-size:14.5px">上海→昆明綠皮火車篇為前導影片，用來呈現人物互動、長途移動與生活紀錄的拍法，不列入正式篇章。</p></div></div><div class="book reveal" id="book"><header><span>各篇章共用的骨幹</span><span>細節依城市調整</span></header><ol id="checks"><li class="check open"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="2"/><path d="M4.5 10.5 8.5 15 15.5 3.5"/></svg><div><b>出發前</b><span>旅伴分開訪談，各自說說對這座城、這部戲、同行的人有什麼想像。</span></div></li><li class="check open"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="2"/><path d="M4.5 10.5 8.5 15 15.5 3.5"/></svg><div><b>行前會議</b><span>節目組交給旅伴一本特製旅遊手冊。前半是劇中場景，可以打勾；後半是城市指南，在地吃的、玩的、怎麼搭車。</span></div></li><li class="check open"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="2"/><path d="M4.5 10.5 8.5 15 15.5 3.5"/></svg><div><b>一筆共用旅費</b><span>怎麼花由旅伴一起決定。省下來吃好一點，還是多去一個地方，他們得自己商量。</span></div></li><li class="check open"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="2"/><path d="M4.5 10.5 8.5 15 15.5 3.5"/></svg><div><b>旅程</b><span>四天三夜左右。走劇中場景，也留自由時間，各自去認識這座城，晚上再交換當天找到的地方。</span></div></li><li class="check open"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="2"/><path d="M4.5 10.5 8.5 15 15.5 3.5"/></svg><div><b>固定生活場景</b><span>每晚回到同一張桌子吃飯聊天。</span></div></li><li class="check open"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="2"/><path d="M4.5 10.5 8.5 15 15.5 3.5"/></svg><div><b>收尾</b><span>每人挑一張這趟最喜歡的照片，寫成明信片寄給同行的人。明信片在旅程結束、各自回到日常之後才寄到，節目拍下收到那一刻。</span></div></li></ol><div class="post" aria-hidden="true"><span>這一張<br>劇裡沒有<i></i><i></i></span><em></em></div></div></div></div></div>
+</section><section id="chapters"><div class="step " data-scene="zurich"><div class="wrap"><div class="over"><h2 class="big-h">一部戲、一座城、一組旅伴</h2></div><div class="wks"><article><img data-p="wanglichuan" alt=""><h4>第一篇章｜蘇黎世</h4><b>《遇見王瀝川》（2016）</b><p>連凱、隋凱、高宇橋</p></article><article><img data-p="peemak" alt=""><h4>第二篇章｜曼谷</h4><b>《淒厲人妻》（2013，中國片名《鬼夫》）</b><p>Mario Maurer、Davika Hoorne</p></article><article><img data-p="loveletter" alt=""><h4>第三篇章｜小樽</h4><b>《情書》（1995）</b><p>柏原崇、酒井美紀、豐川悅司</p></article><article><img data-p="feicheng2" alt=""><h4>第四篇章｜三亞</h4><b>《非誠勿擾 2》（2010）</b><p>葛優、舒淇、孫紅雷、姚晨</p></article></div></div></div>
+<div class="step end" data-scene="zurich" data-sub="第一篇章"><div class="wrap"><div class="over"><p class="theme">Move On｜翻篇</p><h3 class="mega">蘇黎世 ×《遇見王瀝川》</h3><p style="font:600 26px/1.5 var(--display)">有一種愛，是為了別離；有一趟旅行，是為了再見一面。<br>十年後，我們成為了誰？</p><span class="coord mono">47.37° N　8.54° E</span></div></div></div>
+<div class="step " data-scene="zurich_people" data-sub="第一篇章"><div class="wrap"><div class="over"><p class="lead">《遇見王瀝川》當年到蘇黎世實拍。<br>直到今天，還有劇迷拿著截圖，在老城尋找同一個機位。放不下的，其實是觀眾。</p><p class="lead">三個人，與蘇黎世各有一份關係。<br>連凱飾演王瀝川的哥哥王霽川，這次以自己的身分走進蘇黎世。<br>隋凱演的 René，是在蘇黎世替瀝川念郵件的那個朋友。<br>高宇橋沒有演過這部戲，這座城留給他用旅人的眼睛去看。</p></div><div class="stops"><details class="stop" open><summary>先認識城市</summary><p>從舊城與利馬特河畔開始步行，走林登霍夫高地、奧古斯丁巷、大教堂橋</p></details><details class="stop" open><summary>過一天當地生活</summary><p>搭電車、選午餐、逛班霍夫大街與街區小店，聊這座城跟原先想像有什麼不同</p></details><details class="stop" open><summary>把時間留給湖畔</summary><p>蘇黎世湖邊散步、休息，從找地點變成享受當下</p></details><details class="stop" open><summary>交換自己的路線</summary><p>三人各自推薦當天最喜歡的發現</p></details></div><div class="chips over" style="margin-top:16px;text-shadow:none"><span>航空與移動</span><span>步行裝備</span><span>共同住宿</span><span>餐桌與午後休息</span></div></div></div>
+<div class="step " data-scene="zurich_people" data-sub="第一篇章"><div class="wrap"><div class="over"><h2 class="big-h">十年了，觀眾還記得這些地方</h2></div><div class="sheet glass spotp"><div><h3>蘇黎世</h3><ul class="spots"><li><i>○</i><b>聖彼得教堂</b><span>鐘樓吻戲</span></li><li><i>◎</i><b>蘇黎世機場</b><span>接機擁吻</span></li><li><i>○</i><b>班霍夫大街</b><span>購物、街邊長椅</span></li><li><i>◎</i><b>利馬特河畔、舊城電車</b><span>沿河漫步與過場</span></li><li><i>○</i><b>林登霍夫高地</b><span>第 30 集俯瞰全城</span></li><li><i>○</i><b>奧古斯丁巷</b><span>第 30 集小巷穿梭</span></li><li><i>○</i><b>大教堂橋</b><span>第 30 集長橋嬉戲</span></li></ul><p class="note" style="font-size:12px">◎ 官方或多來源互證　○ 影迷指認</p></div><div><h3>中國</h3><ul class="spots"><li><i>昆明</i><b>翠湖公園</b><span>第 38 集投戒</span></li><li><i>昆明</i><b>金馬碧雞坊</b><span>第 8 集合照、第 38 集求婚</span></li><li><i>昆明</i><b>老滇味</b><span>第 8 集</span></li><li><i>杭州</i><b>南宋御街</b><span>第 8 集</span></li><li><i>杭州</i><b>東太平巷 5 號</b><span>第 37 集雨中</span></li><li><i>上海</i><b>浦東金橋碧雲</b><span>官方指認的上海實拍點</span></li></ul></div><div><div class="ev c2"><figure class=""><img data-p="k230" alt=""><figcaption>昆明打卡，230 讚</figcaption></figure><figure class=""><img data-p="k138" alt=""><figcaption>昆明攻略，138 讚</figcaption></figure><figure class=""><img data-p="k91" alt=""><figcaption>十週年來昆明</figcaption></figure><figure class="xh"><img data-p="x1212" alt=""><figcaption>蘇黎世旅遊局</figcaption></figure></div></div></div></div></div>
+<div class="step " data-scene="zurich" data-sub="第一篇章"><div class="wrap"><div class="over"><h2 class="big-h">《遇見王瀝川》的旅伴</h2></div><div class="pcards"><article class="pcard"><figure><img data-p="card_liankai" alt="連凱"><figcaption>連凱</figcaption></figure><p><small>戲裡</small>王霽川，王瀝川的哥哥</p><p><small>戲外</small>特效化妝師出身，1996 年赴港發展，演出多部港片</p></article><article class="pcard"><figure><img data-p="card_suikai" alt="隋凱"><figcaption>隋凱</figcaption></figure><p><small>戲裡</small>René（瑞內），瀝川的好友</p><p><small>戲外</small>演員、主持人，《流浪地球》飾 Tim；2012 年以一人模仿 12 個角色的短片走紅</p></article><article class="pcard"><figure><img data-p="card_gaoyuqiao" alt="高宇橋"><figcaption>高宇橋</figcaption></figure><p><small>戲裡</small>未參演</p><p><small>戲外</small>模特、藝人</p></article></div></div></div>
+<div class="step end" data-scene="bangkok" data-sub="第二篇章"><div class="wrap"><div class="over"><p class="theme">Acceptance｜接受</p><h3 class="mega">曼谷 ×《淒厲人妻》</h3><p style="font:600 26px/1.5 var(--display)">這次來曼谷，你想帶對方去哪裡？</p><span class="coord mono">13.75° N　100.50° E</span></div></div></div>
+<div class="step " data-scene="bangkok_people" data-sub="第二篇章"><div class="wrap"><div class="over"><p class="lead">泰國家喻戶曉的娜娜鬼妻傳說，拍成了一部恐怖愛情喜劇，至今仍名列泰國影史最賣座的泰國電影。<br>故事發生在曼谷帕卡農一帶。這趟旅行，兩位主演各自提出想帶對方去的地方，一起安排路線。<br>實際路線待勘景確認。</p></div><div class="stops"><details class="stop" open><summary>從作品聊起</summary><p>兩人聊這部電影，帶出各自想介紹的曼谷</p></details><details class="stop" open><summary>沿水路進城</summary><p>水上交通接步行，從移動認識街區</p></details><details class="stop" open><summary>交換一餐</summary><p>兩人各選一種想分享的食物</p></details><details class="stop" open><summary>走進夜間街景</summary><p>由白天走到入夜，拍光線、街道與人群的變化</p></details></div><div class="chips over" style="margin-top:16px;text-shadow:none"><span>航空與旅宿</span><span>城市移動</span><span>隨身用品</span><span>餐飲</span></div></div></div>
+<div class="step " data-scene="bangkok" data-sub="第二篇章"><div class="wrap"><div class="over"><h2 class="big-h">《淒厲人妻》的旅伴</h2></div><div class="pcards"><article class="pcard"><figure><img data-p="card_mario" alt="Mario Maurer"><figcaption>Mario Maurer</figcaption></figure><p><small>戲裡</small>男主角 Mak</p><p><small>戲外</small>泰國男星，《初戀那件小事》主演</p></article><article class="pcard"><figure><img data-p="card_davika" alt="Davika Hoorne"><figcaption>Davika Hoorne</figcaption></figure><p><small>戲裡</small>女主角 Nak（娜娜）</p><p><small>戲外</small>泰國演員、模特兒，Gucci 首位泰國品牌大使</p></article></div></div></div>
+<div class="step end" data-scene="otaru" data-sub="第三篇章"><div class="wrap"><div class="over"><p class="theme">Memory｜記憶</p><h3 class="mega">小樽 ×《情書》</h3><p style="font:600 26px/1.5 var(--display)">帶著對《情書》的記憶，今天想在小樽留下什麼？</p><span class="coord mono">43.19° N　141.00° E</span></div></div></div>
+<div class="step " data-scene="otaru_people" data-sub="第三篇章"><div class="wrap"><div class="over"><p class="lead">岩井俊二 1995 年的電影，主要在北海道小樽拍攝。</p></div><div class="stops"><details class="stop" open><summary>從電影到街區</summary><p>從電影場景出發，再走向小樽的港口與街區</p></details><details class="stop" open><summary>移動方式</summary><p>拍攝季節與交通方式待勘景確認</p></details><details class="stop" open><summary>留一封信</summary><p>旅程最後，每人把今天寫成一張明信片</p></details></div><div class="chips over" style="margin-top:16px;text-shadow:none"><span>交通</span><span>保暖服飾</span><span>旅宿</span><span>餐飲</span></div></div></div>
+<div class="step " data-scene="otaru" data-sub="第三篇章"><div class="wrap"><div class="over"><h2 class="big-h">《情書》的旅伴</h2></div><div class="pcards"><article class="pcard"><figure><img data-p="card_kashiwabara" alt="柏原崇"><figcaption>柏原崇</figcaption></figure><p><small>戲裡</small>少年時期的藤井樹</p><p><small>戲外</small>日本演員出身，邀約規劃</p></article><article class="pcard"><figure><img data-p="card_sakai" alt="酒井美紀"><figcaption>酒井美紀</figcaption></figure><p><small>戲裡</small>少女時期的藤井樹</p><p><small>戲外</small>日本演員，邀約規劃</p></article><article class="pcard"><figure><img data-p="card_toyokawa" alt="豐川悅司"><figcaption>豐川悅司</figcaption></figure><p><small>戲裡</small>秋葉茂</p><p><small>戲外</small>日本演員，邀約規劃</p></article></div></div></div>
+<div class="step end" data-scene="sanya" data-sub="第四篇章"><div class="wrap"><div class="over"><p class="theme">Choice｜選擇</p><h3 class="mega">三亞 ×《非誠勿擾 2》</h3><p style="font:600 26px/1.5 var(--display)">到了電影裡的風景，你想怎麼過自己的假期？</p><span class="coord mono">18.25° N　109.51° E</span></div></div></div>
+<div class="step " data-scene="sanya_people" data-sub="第四篇章"><div class="wrap"><div class="over"><p class="lead">馮小剛把《非誠勿擾 2》的試婚橋段拍到了海南三亞。<br>片中取景的亞龍灣熱帶天堂森林公園，至今仍是三亞的熱門景點；攜程的景點介紹裡，還留著《非誠勿擾 II》試婚房一欄。</p></div><div class="stops"><details class="stop" open><summary>從山上看三亞</summary><p>走訪森林公園與電影相關景觀</p></details><details class="stop" open><summary>從行程走進假期</summary><p>到海岸散步、用餐，把時間留給相處與臨時決定</p></details><details class="stop" open><summary>交換休假提案</summary><p>每個人各提出一段想安排的休息時間，讓其他人試試</p></details></div><div class="chips over" style="margin-top:16px;text-shadow:none"><span>度假住宿</span><span>交通</span><span>服飾與防曬用品</span><span>餐飲</span></div></div></div>
+<div class="step " data-scene="sanya" data-sub="第四篇章"><div class="wrap"><div class="over"><h2 class="big-h">《非誠勿擾 2》的旅伴</h2></div><div class="pcards"><article class="pcard"><figure><img data-p="card_geyou" alt="葛優"><figcaption>葛優</figcaption></figure><p><small>戲裡</small>男主角秦奮</p><p><small>戲外</small>中國演員</p></article><article class="pcard"><figure><img data-p="card_shuqi" alt="舒淇"><figcaption>舒淇</figcaption></figure><p><small>戲裡</small>女主角梁笑笑</p><p><small>戲外</small>華語女星</p></article><article class="pcard"><figure><img data-p="card_sun" alt="孫紅雷"><figcaption>孫紅雷</figcaption></figure><p><small>戲裡</small>李香山</p><p><small>戲外</small>中國演員</p></article><article class="pcard"><figure><img data-p="card_yao" alt="姚晨"><figcaption>姚晨</figcaption></figure><p><small>戲裡</small>芒果</p><p><small>戲外</small>中國演員</p></article></div></div></div>
+</section><section id="impact"><div class="step " data-scene="depart" data-sub="影視帶動旅遊"><div class="wrap"><div class="over"><h2 class="big-h">一部作品，真的能讓觀眾出發</h2></div><div class="sheet glass reveal tgrid"><div class="tcard"><strong>半<u>個月</u></strong><span>《非誠勿擾 2》上映期間，三亞鳥巢度假村的片中婚房天天爆滿，預訂要排到半個月後</span><em>華誼兄弟研究院，界面新聞轉載</em></div><div class="tcard"><strong>50<u>倍</u></strong><span>《去有風的地方》開播一週，主要取景地鳳陽邑村搜尋量暴漲；每日客流從 50～100 人增至 500～1,000 人</span><em>飛豬；界面新聞引駐村書記</em></div><div class="tcard"><strong>163<u>%</u></strong><span>《狂飆》大結局前後半個月，廣東江門旅遊搜尋環比增幅，訂單環比增長 121%；春節假期接待 254.93 萬人次，同比增 34.48%</span><em>攜程；江門市文廣旅體局</em></div><div class="tcard"><strong>1,000<u>人／日</u></strong><span>《愛的迫降》取景的瑞士小村伊瑟爾特瓦爾德，人口 406 人，平均每天湧入約 1,000 名訪客</span><em>美聯社，引村公所</em></div></div><div class="evrow"><div class="clips row"><button class="clip" data-imgs="ev_jmf" data-t="界面新聞｜從電影場景到實地「打卡」，影視 IP 如何助推旅遊消費"><small>界面新聞</small><b>從電影場景到實地「打卡」，影視 IP 如何助推旅遊消費</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_feng" data-t="界面新聞｜影視劇帶火「旅遊地」，如何做到「長尾效應」"><small>界面新聞</small><b>影視劇帶火「旅遊地」，如何做到「長尾效應」</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_jm2" data-t="界面新聞｜劇集落幕，江門旅遊乘著熱潮繼續「狂飆」"><small>界面新聞</small><b>劇集落幕，江門旅遊乘著熱潮繼續「狂飆」</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_swiss" data-t="美聯社｜Swiss village cashes in as tourists pay to visit dock"><small>美聯社</small><b>Swiss village cashes in as tourists pay to visit dock</b><i>點開看原文</i></button></div></div><p class="note over" style="color:#fff;text-align:center;margin-top:10px">影視是動機之一，遊客成長另有其他因素；以上為他案例，非本節目預估成效。</p></div></div>
+<div class="step " data-scene="zurich" data-sub="第一篇章"><div class="wrap"><div class="sheet glass reveal impb"><div class="il"><h3 class="big-h">《遇見王瀝川》</h3><div class="bigs"><div class="big"><strong><b data-c="10">10</b><u>億</u></strong><span>開播約一個月，樂視單平台點擊量</span><em>央廣網，2016.08</em></div><div class="big"><strong><b data-c="8.9" data-d="1">8.9</b><u>分</u></strong><span>豆瓣評分，約 14 萬人評分</span><em>豆瓣，2026.11</em></div></div><ul class="press"><li><b>界面新聞</b>開播時豆瓣 8.7，是 2016 暑期檔截至當時評分最高的國產劇</li><li><b>據報導</b>上線 24 小時播放破千萬，微博話題閱讀近 8 億</li><li><b>小紅書</b>播出十年仍有人重溫：單篇最高 8,551 讚，蘇黎世旅遊局也發過打卡筆記</li><li><b>演員社群</b>隋凱微博 190.3 萬、連凱微博 109.6 萬、高宇橋微博 24.6 萬</li></ul><p class="note" style="font-size:12.5px">作品與演員既有資料，非本節目預估成效。</p></div><div class="ir"><div class="clips "><button class="clip" data-imgs="ev_cnr" data-t="央廣網｜《遇見王瀝川》單網破 10 億"><small>央廣網</small><b>《遇見王瀝川》單網破 10 億</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_jm" data-t="界面新聞｜《遇見王瀝川》選角幕後：開播時為暑期檔評分最高的國產劇（截至 2016.08.02）"><small>界面新聞</small><b>《遇見王瀝川》選角幕後：開播時為暑期檔評分最高的國產劇（截至 2016.08.02）</b><i>點開看原文</i></button><button class="clip" data-imgs="x8551,x4661,x3918,x1302,x998" data-t="小紅書｜單篇 8,551 讚，連凱本人 4,661 讚"><small>小紅書</small><b>單篇 8,551 讚，連凱本人 4,661 讚</b><i>點開看原文</i></button><button class="clip" data-imgs="x1212" data-t="小紅書｜蘇黎世旅遊局｜下一站蘇黎世，復刻影視劇封神名場面"><small>小紅書｜蘇黎世旅遊局</small><b>下一站蘇黎世，復刻影視劇封神名場面</b><i>點開看原文</i></button></div></div></div></div></div>
+<div class="step " data-scene="bangkok" data-sub="第二篇章"><div class="wrap"><div class="sheet glass reveal impb"><div class="il"><h3 class="big-h">《淒厲人妻》</h3><div class="bigs"><div class="big"><strong><b data-c="10">10</b><u>億泰銖以上</u></strong><span>全球收入；名列泰國影史最賣座的泰國電影</span><em>Wikipedia</em></div></div><ul class="press"><li><b>Wikipedia／CNN Indonesia</b>2024 年印尼重製版約 486 萬人次，列印尼本土片影史第 12 名</li><li><b>Daily Tribune</b>菲律賓重製版排定 2026 年 10 月上映，上映十多年後仍被重拍</li><li><b>Box Office Mojo</b>香港 129 萬美元、新加坡 73 萬美元、馬來西亞 68 萬美元</li><li><b>演員社群</b>Davika IG 1,770 萬、Mario IG 881.6 萬、微博 103.4 萬</li></ul><p class="note" style="font-size:12.5px">作品與演員既有資料，非本節目預估成效。</p></div><div class="ir"><div class="clips "><button class="clip" data-imgs="ev_thai" data-t="Wikipedia｜泰國影史最賣座泰國電影榜"><small>Wikipedia</small><b>泰國影史最賣座泰國電影榜</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_bom" data-t="Box Office Mojo｜Pee Mak 各地票房"><small>Box Office Mojo</small><b>Pee Mak 各地票房</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_trib" data-t="Daily Tribune｜Mario Maurer’s message makes Wilbert Ross proud to lead Philippine ‘Pee Mak’"><small>Daily Tribune</small><b>Mario Maurer’s message makes Wilbert Ross proud to lead Philippine ‘Pee Mak’</b><i>點開看原文</i></button><button class="clip" data-imgs="ig_davika,ig_mario" data-t="Instagram｜Davika 1,770 萬｜Mario 881.6 萬"><small>Instagram</small><b>Davika 1,770 萬｜Mario 881.6 萬</b><i>點開看原文</i></button></div></div></div></div></div>
+<div class="step " data-scene="otaru" data-sub="第三篇章"><div class="wrap"><div class="sheet glass reveal impb"><div class="il"><h3 class="big-h">《情書》</h3><div class="bigs"><div class="big"><strong><b data-c="80">80</b><u>%</u></strong><span>2025 年中國重映，30 歲以下觀眾佔比</span><em>齊魯晚報引灯塔專業版</em></div><div class="big"><strong><b data-c="7535">7535</b><u>萬人民幣</u></strong><span>中國歷次重映累計</span><em>齊魯晚報、Wikipedia</em></div></div><ul class="press"><li><b>CNN 日本版</b>小樽取景地人潮湧入，2025 年市府派保全以英、中、韓語勸導</li><li><b>Korea Times</b>1999 年韓國上映逾百萬人次；2025 年重映元旦當天仍有 14,957 人</li><li><b>Brooklyn Rail／Film Movement</b>4K 修復版 2026 年 6 月起在北美上映</li><li><b>Real Sound</b>柏原崇、酒井美紀獲日本電影金像獎新人獎</li></ul><p class="note" style="font-size:12.5px">作品與演員既有資料，非本節目預估成效。</p></div><div class="ir"><div class="clips "><button class="clip" data-imgs="ev_cnn" data-t="CNN 日本版｜映画「Love Letter」ロケ地の小樽市、観光客殺到"><small>CNN 日本版</small><b>映画「Love Letter」ロケ地の小樽市、観光客殺到</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_kt25" data-t="The Korea Times｜‘Love Letter’ reclaims Korean hearts"><small>The Korea Times</small><b>‘Love Letter’ reclaims Korean hearts</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_br" data-t="The Brooklyn Rail｜Shunji Iwai’s Love Letter"><small>The Brooklyn Rail</small><b>Shunji Iwai’s Love Letter</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_sina" data-t="新浪財經｜經典愛情電影依舊暢銷"><small>新浪財經</small><b>經典愛情電影依舊暢銷</b><i>點開看原文</i></button></div></div></div></div></div>
+<div class="step " data-scene="sanya" data-sub="第四篇章"><div class="wrap"><div class="sheet glass reveal impb"><div class="il"><h3 class="big-h">《非誠勿擾 2》</h3><div class="bigs"><div class="big"><strong><b data-c="4.7" data-d="1">4.7</b><u>億人民幣</u></strong><span>約 4.7 億，2010 年華語片票房前三；系列前兩集合計逾 7 億</span><em>界面新聞、Wikipedia</em></div><div class="big"><strong><b data-c="4.8" data-d="1">4.8</b><u>萬則</u></strong><span>取景地亞龍灣森林公園的攜程點評</span><em>攜程，2026.11</em></div></div><ul class="press"><li><b>據報導</b>片中森林公園鳥巢度假村「婚房」一度訂滿，要等約半個月</li><li><b>界面新聞</b>第二集票房 4.71 億</li><li><b>演員社群</b>舒淇微博 4,041.4 萬粉絲</li></ul><p class="note" style="font-size:12.5px">作品與演員既有資料，非本節目預估成效。</p></div><div class="ir"><div class="clips "><button class="clip" data-imgs="ev_sanya" data-t="China Services Info｜Yalong Bay Tropical Paradise Forest Park: If You Are the One II"><small>China Services Info</small><b>Yalong Bay Tropical Paradise Forest Park: If You Are the One II</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_jmf" data-t="界面新聞｜從電影場景到實地「打卡」，影視 IP 如何助推旅遊消費"><small>界面新聞</small><b>從電影場景到實地「打卡」，影視 IP 如何助推旅遊消費</b><i>點開看原文</i></button><button class="clip" data-imgs="ev_jmbox" data-t="界面新聞｜元旦檔票房創影史新高，《年會》被熱捧、《非誠 3》夕陽紅"><small>界面新聞</small><b>元旦檔票房創影史新高，《年會》被熱捧、《非誠 3》夕陽紅</b><i>點開看原文</i></button></div></div></div></div></div>
+</section><section id="business"><div class="step " data-scene="depart"><div class="wrap"><div class="over"><h2 class="big-h">品牌可以用五種方式參與</h2><p class="lead">一趟拍攝，同時拿到節目內的露出與節目外的素材。</p></div><div class="stops lv5"><details class="stop" open><summary>整季冠名</summary><p>節目名前面掛品牌，片頭片尾與宣傳素材都看得到。</p><p class="ex">例：《這！就是街舞》第一季由一葉子獨家冠名</p></details><details class="stop" open><summary>聯合出品</summary><p>片頭字幕掛上品牌名，以出品方身分一起推節目。</p><p class="ex">規格另議</p></details><details class="stop" open><summary>單一篇章合作</summary><p>只贊助一座城，例如航空載旅伴飛蘇黎世、當地觀光單位合作該篇。</p><p class="ex">參考：香港旅發局與 CJ ENM 簽三年合作，以韓劇與綜藝推廣香港</p></details><details class="stop" open><summary>旅程場景合作</summary><p>產品出現在真實行程裡：穿你的鞋走老城、走累了喝你的飲料。</p><p class="ex">下一頁有六種時刻</p></details><details class="stop" open><summary>品牌影像加購</summary><p>同一趟多拍一支品牌自己的短片、直式影音和照片，放在品牌社群。</p><p class="ex">可搭配以上任一種</p></details></div><p class="note over" style="color:#fff;text-align:center;margin-top:14px;font-size:12.5px">案例來源：China Film Insider、Antara News；費用依範圍另行報價。</p></div></div>
+<div class="step " data-scene="depart"><div class="wrap"><div class="over"><h3 class="big-h">品牌怎麼進入故事</h3></div><div id="mgrid"><article class="mc"><img data-i="depart" alt=""><div><span class="eyebrow">出發與抵達</span><blockquote>行李箱裡，這次沒有劇本。</blockquote><p>航空、交通、行李、旅遊服務</p></div></article><article class="mc"><img data-i="walk" alt=""><div><span class="eyebrow">走在路上</span><blockquote>劇裡走過的路，這次穿自己的鞋。</blockquote><p>鞋履、服飾、防曬、隨身用品</p></div></article><article class="mc"><img data-i="stay" alt=""><div><span class="eyebrow">一起住下來</span><blockquote>住下來，才算來過。</blockquote><p>旅宿、生活用品</p></div></article><article class="mc"><img data-i="rest" alt=""><div><span class="eyebrow">走累了，停一下</span><blockquote>風景讓人想遠行；那一口甜，讓人願意停下來。</blockquote><p>飲品、食品、餐飲</p></div></article><article class="mc"><img data-i="table" alt=""><div><span class="eyebrow">每晚同一張桌子</span><blockquote>今天誰找到好吃的，誰先說。</blockquote><p>酒類、餐飲、家電</p></div></article><article class="mc"><img data-i="photo" alt=""><div><span class="eyebrow">記下今天</span><blockquote>這張照片，劇裡沒有。</blockquote><p>手機、相機</p></div></article></div><p class="note over" style="color:#fff;text-align:center;margin-top:14px">文案參考用於品牌短片與社群，不是演員台詞。</p></div></div>
+<div class="step " data-scene="depart"><div class="wrap"><div class="over" style="display:grid;gap:18px"><h3>品牌短片文案示範</h3><div class="films" id="films" style="text-shadow:none"><article class="film"><header><span>飲品</span><i>● REC</i></header><div><p>走了一整個上午。</p><p>手冊上的勾，打了三個。</p><p>坐下來，喝一口。</p><p>下一個勾，等一下再說。</p></div><span style="display:block;height:2px;background:#fff2"><span class="pg" style="display:block"></span></span></article><article class="film"><header><span>手機、相機</span><i>● REC</i></header><div><p>手冊上的場景，劇裡都拍過了。</p><p>這一張，是我們自己拍的。</p></div><span style="display:block;height:2px;background:#fff2"><span class="pg" style="display:block"></span></span></article><article class="film"><header><span>旅宿</span><i>● REC</i></header><div><p>白天各走各的。</p><p>晚上，還是回到這張桌子。</p></div><span style="display:block;height:2px;background:#fff2"><span class="pg" style="display:block"></span></span></article><article class="film"><header><span>整季冠名</span><i>● REC</i></header><div><p>跟著一部戲，重新認識一座城。</p><p>【品牌名】×《城裡戲外》</p></div><span style="display:block;height:2px;background:#fff2"><span class="pg" style="display:block"></span></span></article></div></div></div></div>
+<div class="step end" data-scene="depart"><div class="wrap"><div class="over"><h2 class="big-h">先談市場，再決定拍哪個篇章、交付哪些素材</h2></div><div class="stops" style="margin-top:10px"><details class="stop" open><summary>先選範圍</summary><p>整季、單一篇章或單一場景，依品牌市場與產品配對。</p></details><details class="stop" open><summary>列清楚交付</summary><p>正片露出形式與次數、品牌識別位置、短片支數與長度、直式版本、照片張數。</p></details><details class="stop" open><summary>權利分開約定</summary><p>社群、官網、付費投放的期間、地區、平台與改剪權；演員個人社群發布另行邀約。</p></details><details class="stop" open><summary>拍攝前確認</summary><p>產品資訊、必要鏡頭與合作場景；品牌另剪素材依約送審。</p></details><details class="stop" open><summary>播出後回報</summary><p>提供露出時間碼、素材清單，以及能取得的平台觀看與互動資料。</p></details></div><p class="closing over narrow" style="margin-top:54px">節目維持紀實的剪輯自主，品牌不改變人物故事。費用依篇章、露出、素材量、授權範圍與獨家條件另行報價。</p></div></div>
+</section><section id="shoot"><div class="step " data-scene="follow"><div class="wrap"><div class="over"><h2 class="big-h">路線交給旅伴，攝影機跟著人走</h2><p class="lead" style="margin-top:8px">節目組準備手冊、旅費和固定的生活場景。去哪、吃什麼、怎麼花錢由旅伴決定，不寫台詞，不預設反應。</p></div><div id="pgrid"><article class="pc"><canvas class="pcv" id=c-plan aria-hidden="true"></canvas><div><h4>白天隨行</h4><p>攝影組隨行，主機加手持小機，跟拍移動、用餐、找路，保留事情發生的前後過程</p></div></article><article class="pc"><canvas class="pcv" aria-hidden="true"></canvas><div><h4>住處固定機位</h4><p>客廳、餐桌架固定機位，對話可以連續發生，減少攝影人員靠近的干擾</p></div></article><article class="pc"><canvas class="pcv" aria-hidden="true"></canvas><div><h4>夜間紀錄</h4><p>紅外線攝影機整晚錄，睡前閒聊、半夜醒來都留得住</p></div></article><article class="pc"><canvas class="pcv" aria-hidden="true"></canvas><div><h4>個別訪談</h4><p>出發前、旅程中、回到日常後，各自單獨訪談</p></div></article><article class="pc"><canvas class="pcv" aria-hidden="true"></canvas><div><h4>城市影像與現場聲音</h4><p>拍街道的早晚、交通、食物；保留腳步、車聲、河水與餐桌交談</p></div></article><article class="pc"><canvas class="pcv" aria-hidden="true"></canvas><div><h4>旅行資訊</h4><p>用字幕與路線圖交代地點和移動方式，方便觀眾安排自己的旅行</p></div></article></div><p class="note over" style="color:#fff;text-align:center;margin-top:14px">浴室、廁所不設攝影機，旅伴可以隨時要求暫停。品牌照旅伴實際使用的方式入鏡，落在移動途中、餐桌、住處。機位配置依場景安排，圖為示意。</p></div></div>
+</section><section id="schedule"><div class="step " data-scene="walk"><div class="wrap"><div class="over" style="display:grid;gap:12px"><span class="eyebrow">七、製作時程</span><h2 class="big-h">2026 年 11 月到 2027 年 9 月上線</h2></div><div class="sheet glass" style="margin-top:22px"><div class="gantt reveal" id="gantt"><div class="scrub"><output id="gout"></output><input id="gsc" type="range" min="0" max="13.9" step="0.1" value="0" aria-label="時程月份"></div><div class="today-l">今天 2026.11.03</div><div class="axis" aria-hidden="true"><span class=y>11</span><span>12</span><span class=y>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span></div><div class="rt hd" style="padding-bottom:8px;font:500 11.5px var(--mono);color:var(--mist);letter-spacing:.1em"><span>時間</span><span>製作</span><span>品牌合作</span></div><div class="row" data-s="0" data-l="2"><div class="rowbar"><span class="today"></span><span class="rb" style="--s:0;--l:2;transition-delay:0.00s"></span></div><div class="rt"><b>2026 年 11～12 月</b><span>整季內容與預算定案，接洽演員、平台、場地；前導影片製作</span><i>提供合作提案，確認需求與預算</i></div></div><div class="row" data-s="2" data-l="1"><div class="rowbar"><span class="today"></span><span class="rb" style="--s:2;--l:1;transition-delay:0.12s"></span></div><div class="rt"><b>2027 年 1 月</b><span>前導樣片完成，細化首篇行程</span><i>確認篇章、產品與交付內容</i></div></div><div class="row" data-s="3" data-l="1"><div class="rowbar"><span class="today"></span><span class="rb" style="--s:3;--l:1;transition-delay:0.24s"></span></div><div class="rt"><b>2027 年 2 月</b><span>首篇勘景、行前訪談、路線定案</span><i>完成首篇簽約、必要鏡頭確認</i></div></div><div class="row" data-s="4" data-l="2"><div class="rowbar"><span class="today"></span><span class="rb" style="--s:4;--l:2;transition-delay:0.36s"></span></div><div class="rt"><b>2027 年 3～4 月</b><span>第一篇章蘇黎世拍攝</span><i>執行首篇品牌拍攝</i></div></div><div class="row" data-s="6" data-l="4"><div class="rowbar"><span class="today"></span><span class="rb" style="--s:6;--l:4;transition-delay:0.48s"></span></div><div class="rt"><b>2027 年 5～8 月</b><span>蘇黎世篇後期、字幕與平台交付</span><i>確認品牌另剪版本</i></div></div><div class="row" data-s="7" data-l="7"><div class="rowbar"><span class="today"></span><span class="rb open" style="--s:7;--l:7;transition-delay:0.60s"></span></div><div class="rt"><b>2027 年 6 月後</b><span>第二、三、四篇章拍攝（暫排），拍完進後期</span><i>執行後續篇章合作</i></div></div><div class="row" data-s="10" data-l="4"><div class="rowbar"><span class="today"></span><span class="rb open" style="--s:10;--l:4;transition-delay:0.72s"></span></div><div class="rt"><b>2027 年 9 月起</b><span>首篇上線，後續篇章依平台檔期播出</span><i>配合發布素材，整理合作成效</i></div></div></div></div></div></div>
+</section><section id="broadcast"><div class="step " data-scene="rest"><div class="wrap"><div class="over"><span class="eyebrow">八、播出資訊</span><h2 class="mega">目標主流影音平台</h2><div class="trio" style="margin-top:34px"><p class="lead"><b>2027 年 9 月</b>預計上線</p><p class="lead"><b>3～4 集</b>每篇章暫估，依平台確認</p><p class="lead"><b>45 分鐘</b>每集片長</p></div><p class="lead" style="margin-top:30px">平台洽談與資金規劃推進中。其他影音平台、電視及授權合作皆可洽談。以城市篇章編排的紀實旅行節目。</p><div class="chips" style="text-shadow:none;justify-content:center;margin-top:16px"><span>篇章預告</span><span>旅途短影音</span><span>旅伴的旅行筆記</span><span>品牌合作素材</span></div></div></div></div>
+</section><section id="team"><div class="step " data-scene="table" data-sub="李志清"><div class="wrap"><div class="tm4"><div class="thd"><img class="tph2" data-p="lizhiqing" alt=""><div><span class="rl">後期總監</span><h3 class="mega">李志清</h3><p class="tb2">與侯孝賢導演合作多部影視作品，參與作品橫跨劇情片與紀錄片。從《千禧曼波》到坎城最佳導演《刺客聶隱娘》，把關的是一部片走到觀眾面前的最後一哩路。</p></div></div><div class="tstrip"><img data-p="threetimes" alt=""><img data-p="summerstail" alt=""><img data-p="etude" alt=""><img data-p="redballoon" alt=""><img data-p="assassin" alt=""><img data-p="niannian" alt=""><img data-p="mambo" alt=""></div><p class="wk">2001《千禧曼波》　2002《夢幻部落》　2005《最好的時光》　2006《愛麗絲的鏡子》　2007《夏天的尾巴》　2007《練習曲》　2007《紅氣球》　2011《到阜陽六百里》　2011《金城小子》　2015《刺客聶隱娘》　2015《念念》</p></div></div></div>
+<div class="step " data-scene="table" data-sub="天佑"><div class="wrap"><div class="tm4"><div class="thd"><img class="tph2" data-p="tianyou" alt=""><div><span class="rl">導演</span><h3 class="mega">天佑</h3><p class="tb2">剪接出身的實境節目導演，十五年以上綜藝與實境經歷。從格式設計、海外長天期多機拍攝到後期敘事一手貫穿，擅長引導藝人的真實反應，並以後期思維回推現場拍法。</p></div></div><div class="tstrip"><img data-p="whatatrip" alt=""><img data-p="trip_a" alt=""><img data-p="forest1" alt=""><img data-p="forest2" alt=""><img data-p="adv1" alt=""><img data-p="adv2" alt=""></div><p class="wk">實境節目：《出去一下 WHAT A TRIP》導演（黃宣、新田真劍佑、許光漢、桂綸鎂）<br>《極島森林》第一、二季導演，第二季入圍第 59 屆金鐘獎生活風格節目獎<br>《極島冒險 溜浪玖壹壹》第一、二季藝人導演<br>綜藝剪接：《綜藝大熱門》《瘋狂大悶鍋》《我要當歌手》《超級接班人 2》《中國好聲音—重返巔峰》；《康熙來了》剪接助理</p></div></div></div>
+<div class="step " data-scene="table" data-sub="製作與編劇"><div class="wrap"><div class="over tm3"><h3 class="big-h">製作團隊</h3><div class="crew"><div><span class="rl">製作人</span><b>Kiki</b></div><div><span class="rl">製作人</span><b>恬姐</b></div><div><span class="rl">編劇</span><b>芝姐</b></div></div></div></div></div>
+</section><div class="step stage" id="end" data-scene="table">
+  <canvas id="c-end" aria-label="字標「城裡」與水中倒影「戲外」"></canvas>
+  <div class="hero-top"><span class="eyebrow" style="color:var(--mist)">WHERE STORIES LIVE</span><h1>《城裡戲外》節目企劃（招商用）</h1></div>
+  <div class="hero-bot">
+    <p class="tag">在戲裡的場景，做戲外的自己。</p>
+    <p class="mono">紀實旅行節目 ｜ 好好娛樂有限公司 ｜ 2026.11</p>
+    <p class="note">本季規劃四個城市篇章。演員與平台為邀約、洽談規劃，以簽約結果為準。</p>
+  </div>
+
+</div>
+</div></div>
+</div><div id="rot">手機請橫放觀看</div>
+<script>var GLY={"upm": 1000, "城": {"d": "M457 513 452 375H527L546 401Q555 413 563.5 413.0Q572 413 588.5 400.5Q605 388 621.5 376.5Q638 365 638.0 356.5Q638 348 606 336Q606 281 601.5 188.0Q597 95 587.5 67.0Q578 39 547.0 19.5Q516 0 508.5 0.0Q501 0 496.5 19.0Q492 38 480.0 49.0Q468 60 434 74L436 91Q475 84 492.0 84.0Q509 84 514.0 96.0Q519 108 525.0 178.5Q531 249 532 346H451L445 231Q440 136 417.0 73.5Q394 11 348.5 -47.0Q303 -105 227 -166L210 -150Q349 -16 368 166L223 94Q190 78 152.0 55.0Q114 32 100.5 20.5Q87 9 83.0 9.0Q79 9 75.0 12.0Q71 15 53.0 44.0Q35 73 18 107Q93 120 168 141V416H88Q61 416 46 409L29 452Q50 447 79 447H168V629Q168 713 166 726Q205 718 246.5 706.5Q288 695 288.0 686.0Q288 677 245 664V447H258L292 487Q299 501 306.5 501.0Q314 501 344.0 470.5Q374 440 374.0 428.0Q374 416 359 416H245V161L371 193Q381 339 381 503Q381 555 379 590Q420 576 475 546H643Q637 656 628 762Q690 751 718.0 743.0Q746 735 746 729Q746 721 713 702Q715 596 717 546H825L853 587Q865 604 873.0 604.0Q881 604 918.0 572.5Q955 541 955.0 527.0Q955 513 928 513H718Q726 264 754 172Q792 262 818 427Q845 421 884.5 404.5Q924 388 924.5 382.0Q925 376 909.5 368.0Q894 360 887 334Q839 166 789 87Q803 61 838.0 20.0Q873 -21 884 -21Q888 -21 892.0 -15.5Q896 -10 912.0 32.0Q928 74 942 120L963 115Q938 -4 938.0 -40.0Q938 -76 946.0 -100.5Q954 -125 954.0 -136.0Q954 -147 938 -147Q899 -147 844.0 -106.0Q789 -65 737 18Q655 -71 452 -156L447 -142Q636 -27 706 80Q657 207 644 513ZM747 714Q820 701 842.5 686.0Q865 671 865.0 646.5Q865 622 851.5 603.5Q838 585 825 585Q817 585 813.5 589.0Q810 593 806 603Q780 663 740 700Z", "adv": 1000, "bbox": [18, -166, 963, 762]}, "裡": {"d": "M137 783Q213 760 251.0 737.0Q289 714 289.0 687.0Q289 660 270.5 633.5Q252 607 233 607Q224 607 220.0 611.0Q216 615 205.0 651.0Q194 687 182.0 708.0Q170 729 129 769ZM708 278V117H786L824 170Q831 179 836 179Q843 179 878.0 143.5Q913 108 913.0 98.0Q913 88 883 88H708V-70H832L876 -9Q883 1 890.0 1.0Q897 1 938.5 -40.5Q980 -82 980 -94Q980 -101 960 -101H392Q364 -101 352 -108L335 -65Q355 -70 382 -70H628V88H471Q447 88 432 81L412 122Q433 117 459 117H628V278H510V249Q510 237 502.5 231.0Q495 225 470.0 217.0Q445 209 437.5 209.0Q430 209 431 220Q436 266 436 318V616Q436 667 433 711Q489 692 521 675H805L830 719Q834 726 842.5 726.0Q851 726 891.0 697.5Q931 669 931.0 658.0Q931 647 903 639V356L905 266Q905 255 900.5 250.0Q896 245 870.0 234.5Q844 224 833 224Q827 224 827 236V278ZM628 496V645H510V496ZM708 645V496H827V645ZM708 466V308H827V466ZM628 308V466H510V308ZM186 253Q127 185 40 112L27 127Q128 244 186 343Q186 398 184 433Q207 421 221 411Q248 467 266 524H98Q71 524 56 517L38 558Q59 553 88 553H262L281 586Q286 595 292.0 595.0Q298 595 327.0 579.0Q356 563 373.0 552.0Q390 541 390 535Q390 528 375.5 521.5Q361 515 350.5 503.5Q340 492 319.0 449.0Q298 406 263 354V269L268 267Q316 335 346 392Q394 365 405.0 356.5Q416 348 416.0 341.5Q416 335 401.5 335.0Q387 335 292 258Q357 230 375.5 212.5Q394 195 394.0 172.0Q394 149 383.0 131.5Q372 114 360.5 114.0Q349 114 343.0 119.5Q337 125 331 138Q303 204 263 242V-130Q263 -140 254.5 -145.5Q246 -151 222.5 -160.5Q199 -170 189 -170Q183 -170 183 -159L185 -118Q186 -76 186 -26Z", "adv": 1000, "bbox": [27, -170, 980, 783]}, "戲": {"d": "M881 599Q881 589 878.0 578.0Q875 567 870.0 557.0Q865 547 859.0 539.0Q853 531 847 528Q839 523 826.5 527.5Q814 532 806 558Q802 570 798.5 580.0Q795 590 789.5 601.5Q784 613 775.5 627.0Q767 641 754 660L763 672Q802 658 825.5 648.5Q849 639 861.0 631.0Q873 623 877.0 615.5Q881 608 881 599ZM583 299Q595 285 594.0 280.5Q593 276 576 276H271Q259 276 247.5 274.0Q236 272 230 269L208 313Q222 310 232.5 309.0Q243 308 257 308H505L521 324Q529 336 534.0 336.5Q539 337 550 328Q561 319 568.0 313.0Q575 307 583 299ZM942 -104Q954 -134 942.5 -144.5Q931 -155 902 -143Q843 -117 798.5 -77.0Q754 -37 715 31Q685 4 655.5 -20.5Q626 -45 594.5 -67.5Q563 -90 526.5 -111.5Q490 -133 445 -154L434 -134Q484 -100 521.0 -72.5Q558 -45 587.0 -20.0Q616 5 640.0 30.0Q664 55 690 86Q673 138 660.0 212.5Q647 287 640 398L597 392Q586 390 575.5 387.0Q565 384 557 380L535 417Q555 414 579 417L639 424Q638 441 637.0 463.0Q636 485 635.5 508.5Q635 532 635.0 554.5Q635 577 635 595Q635 617 634.5 634.5Q634 652 632.5 668.5Q631 685 629.5 701.0Q628 717 626 736Q640 733 649.5 730.5Q659 728 667.5 726.0Q676 724 686.0 720.5Q696 717 712 713Q736 706 735.5 699.5Q735 693 704 677Q702 608 702.5 546.5Q703 485 705 433L838 449L861 492Q868 505 874.0 505.5Q880 506 891 498Q900 492 906.5 487.0Q913 482 919.5 477.0Q926 472 933.0 466.5Q940 461 949 453Q968 436 945 433L706 406Q707 364 709.5 328.5Q712 293 715.5 263.0Q719 233 724.5 206.5Q730 180 736 155Q751 180 762.5 202.0Q774 224 783.5 247.5Q793 271 802.0 299.0Q811 327 821 364Q849 352 871.0 341.5Q893 331 915 317Q930 306 929.0 302.5Q928 299 912 295Q904 293 895.0 286.5Q886 280 873 256Q856 223 843.5 201.0Q831 179 819.0 162.0Q807 145 794.0 128.5Q781 112 763 89Q778 56 799.0 29.0Q820 2 846 -24Q866 -46 874.0 -43.5Q882 -41 890 -16Q895 -1 898.5 12.0Q902 25 906.0 40.0Q910 55 913.5 73.0Q917 91 922 117L941 114Q938 68 936.0 33.0Q934 -2 933.5 -28.0Q933 -54 934.5 -72.5Q936 -91 942 -104ZM606 545Q620 533 618.0 524.5Q616 516 599 521Q590 524 582.0 523.5Q574 523 563.5 518.0Q553 513 538.5 503.0Q524 493 501 475L489 482Q500 503 504.5 513.5Q509 524 514 538H205Q204 512 204.0 488.0Q204 464 203 441L310 458V479Q310 491 309.5 502.5Q309 514 307 531Q329 526 343.0 523.0Q357 520 372 515Q386 510 386.5 506.5Q387 503 372 492V467L402 472L410 503Q414 517 432 507Q443 501 452.5 494.0Q462 487 470 479Q486 465 484.5 460.0Q483 455 466 452L372 438V415Q372 404 375.0 400.0Q378 396 395 394Q424 391 450 394Q466 396 473.0 398.5Q480 401 491 409Q496 413 499.5 413.0Q503 413 508 407Q513 401 520.5 392.0Q528 383 534 375Q539 368 538.0 365.5Q537 363 528 359Q515 354 502.0 352.0Q489 350 471 348Q456 346 431.0 346.0Q406 346 370 348Q334 350 322.0 361.5Q310 373 310 404V429L202 411Q200 357 198.0 309.0Q196 261 193 210Q190 145 183.0 100.0Q176 55 160.0 15.5Q144 -24 115.0 -66.0Q86 -108 39 -165L24 -155Q47 -115 64.0 -84.0Q81 -53 92.0 -25.0Q103 3 109.5 30.0Q116 57 119.5 89.0Q123 121 124.5 161.5Q126 202 127 257Q128 309 128.0 351.5Q128 394 127.5 434.0Q127 474 125.5 516.0Q124 558 121 610Q135 605 146.0 600.5Q157 596 167.5 591.0Q178 586 189.5 579.5Q201 573 217 564H301V671Q301 706 300.5 724.5Q300 743 299 758Q327 753 343.5 749.0Q360 745 381 740Q404 733 403.5 726.5Q403 720 376 706V647H455L477 678Q489 694 494.5 695.0Q500 696 513 685Q529 669 536.0 662.5Q543 656 554 644Q567 630 565.0 625.5Q563 621 544 621H376V564H512L525 581Q534 592 539.0 593.5Q544 595 555 588Q568 580 578.5 569.5Q589 559 606 545ZM541 125Q542 114 533 109Q518 101 509.0 98.5Q500 96 481 93Q476 92 475.0 95.0Q474 98 474 108H311Q311 94 307.0 88.5Q303 83 291 78Q325 57 338.0 44.0Q351 31 351 20Q351 3 338.0 -13.5Q325 -30 307 -30Q301 -30 298.0 -25.5Q295 -21 293 -3Q292 6 290.5 13.5Q289 21 287.0 29.0Q285 37 281.0 46.5Q277 56 271 70Q255 65 250.5 66.0Q246 67 246 73Q247 91 247.5 110.5Q248 130 248 141V189Q248 203 247.5 219.0Q247 235 245 258Q271 250 285.5 242.0Q300 234 314 227H463L475 249Q480 258 485.0 259.0Q490 260 501 255Q512 250 522.5 243.0Q533 236 545 229Q578 210 538 194V168Q538 155 538.5 147.5Q539 140 541 125ZM359 -75Q312 -89 277.0 -101.5Q242 -114 226 -122Q217 -127 213.0 -126.0Q209 -125 203 -115Q192 -97 184.5 -83.0Q177 -69 166 -46Q188 -46 218.0 -43.5Q248 -41 281.0 -37.5Q314 -34 349.5 -29.5Q385 -25 418 -20Q432 16 441.5 44.5Q451 73 458 100Q477 92 490.0 86.5Q503 81 517 73Q531 65 530.5 62.0Q530 59 519 55Q509 52 503.5 49.0Q498 46 493 39Q482 26 472.5 15.0Q463 4 444 -16L577 5L582 -10ZM474 200H311V138H474Z", "adv": 1000, "bbox": [24, -165, 957.5952380952381, 758]}, "外": {"d": "M567 520Q581 507 581.0 502.5Q581 498 566 492Q556 488 551.0 484.0Q546 480 542.5 473.5Q539 467 536.0 456.5Q533 446 528 430Q505 354 483.5 293.5Q462 233 436.0 183.5Q410 134 377.0 93.5Q344 53 297.5 16.0Q251 -21 189.0 -56.5Q127 -92 44 -131L37 -111Q103 -66 154.5 -27.0Q206 12 246.0 51.0Q286 90 316.5 133.0Q347 176 371.0 228.0Q395 280 414.5 344.5Q434 409 452 493H275Q264 467 253.5 441.5Q243 416 230 394Q270 373 295.5 359.0Q321 345 335.5 332.0Q350 319 354.0 306.0Q358 293 356 275Q354 262 349.0 248.5Q344 235 337.0 224.5Q330 214 322.5 207.5Q315 201 308 201Q298 201 292.5 210.5Q287 220 285 247Q284 261 281.5 274.0Q279 287 272.0 302.0Q265 317 253.0 335.0Q241 353 221 378Q204 348 187.0 321.5Q170 295 151.5 270.5Q133 246 111.5 221.5Q90 197 65 170L48 182Q132 314 184.5 453.5Q237 593 269 747Q299 733 323.5 718.5Q348 704 371 687Q388 675 387.5 670.5Q387 666 370 663Q360 661 354.5 659.0Q349 657 344.5 653.0Q340 649 336.5 641.0Q333 633 328 620Q317 593 307.5 569.0Q298 545 287 521H447L479 567Q487 579 491.5 579.5Q496 580 507 570Q524 558 540.5 544.0Q557 530 567 520ZM977 223Q954 217 939.5 211.0Q925 205 917.5 198.0Q910 191 908.0 182.5Q906 174 908 163Q910 147 899.0 146.0Q888 145 871 153Q836 170 806.0 187.0Q776 204 750 223V-11Q750 -34 750.5 -63.0Q751 -92 753 -121Q754 -132 752.0 -136.5Q750 -141 739 -148Q732 -152 727.0 -155.0Q722 -158 716.5 -160.5Q711 -163 702.5 -165.5Q694 -168 681 -172Q670 -175 667.0 -172.5Q664 -170 665 -156Q666 -137 666.5 -122.0Q667 -107 667.5 -93.5Q668 -80 668.0 -65.5Q668 -51 668 -34V296Q639 329 614.5 369.0Q590 409 567 460L590 477Q608 450 627.5 426.5Q647 403 668 382V671Q668 706 667.5 724.5Q667 743 666 758Q694 752 716.0 744.5Q738 737 759 728Q788 716 786.5 709.0Q785 702 750 691V317Q799 286 854.5 267.5Q910 249 974 241Z", "adv": 1000, "bbox": [37, -173.63636363636363, 977, 758]}};</script>
+<script>var IMG={"zurich": "i/img_zurich.jpg", "bangkok": "i/img_bangkok.jpg", "sanya": "i/img_sanya.jpg", "imp_travel": "i/img_imp_travel.jpg", "otaru_cast": "i/img_otaru_cast.jpg", "stay": "i/img_stay.jpg", "imp_sanya": "i/img_imp_sanya.jpg", "postcard": "i/img_postcard.jpg", "follow": "i/img_follow.jpg", "hook": "i/img_hook.jpg", "views": "i/img_views.jpg", "core_three": "i/img_core_three.jpg", "otaru_people": "i/img_otaru_people.jpg", "biz_plan": "i/img_biz_plan.jpg", "works": "i/img_works.jpg", "imp_otaru": "i/img_imp_otaru.jpg", "bangkok_people": "i/img_bangkok_people.jpg", "team_d": "i/img_team_d.jpg", "sanya_people": "i/img_sanya_people.jpg", "photo": "i/img_photo.jpg", "depart": "i/img_depart.jpg", "walk": "i/img_walk.jpg", "team_b": "i/img_team_b.jpg", "core_pos": "i/img_core_pos.jpg", "zurich_people": "i/img_zurich_people.jpg", "team_c": "i/img_team_c.jpg", "zurich_cast": "i/img_zurich_cast.jpg", "core_city": "i/img_core_city.jpg", "biz_cafe": "i/img_biz_cafe.jpg", "imp_zurich": "i/img_imp_zurich.jpg", "imp_bangkok": "i/img_imp_bangkok.jpg", "rest": "i/img_rest.jpg", "bangkok_cast": "i/img_bangkok_cast.jpg", "table": "i/img_table.jpg", "otaru": "i/img_otaru.jpg", "sanya_cast": "i/img_sanya_cast.jpg", "biz_shoe": "i/img_biz_shoe.jpg"};var DEP={"zurich": "i/dep_zurich.jpg", "bangkok": "i/dep_bangkok.jpg", "sanya": "i/dep_sanya.jpg", "imp_travel": "i/dep_imp_travel.jpg", "otaru_cast": "i/dep_otaru_cast.jpg", "stay": "i/dep_stay.jpg", "imp_sanya": "i/dep_imp_sanya.jpg", "postcard": "i/dep_postcard.jpg", "follow": "i/dep_follow.jpg", "hook": "i/dep_hook.jpg", "views": "i/dep_views.jpg", "core_three": "i/dep_core_three.jpg", "otaru_people": "i/dep_otaru_people.jpg", "biz_plan": "i/dep_biz_plan.jpg", "works": "i/dep_works.jpg", "imp_otaru": "i/dep_imp_otaru.jpg", "bangkok_people": "i/dep_bangkok_people.jpg", "team_d": "i/dep_team_d.jpg", "sanya_people": "i/dep_sanya_people.jpg", "photo": "i/dep_photo.jpg", "depart": "i/dep_depart.jpg", "walk": "i/dep_walk.jpg", "team_b": "i/dep_team_b.jpg", "core_pos": "i/dep_core_pos.jpg", "zurich_people": "i/dep_zurich_people.jpg", "team_c": "i/dep_team_c.jpg", "zurich_cast": "i/dep_zurich_cast.jpg", "core_city": "i/dep_core_city.jpg", "biz_cafe": "i/dep_biz_cafe.jpg", "imp_zurich": "i/dep_imp_zurich.jpg", "imp_bangkok": "i/dep_imp_bangkok.jpg", "rest": "i/dep_rest.jpg", "bangkok_cast": "i/dep_bangkok_cast.jpg", "table": "i/dep_table.jpg", "otaru": "i/dep_otaru.jpg", "sanya_cast": "i/dep_sanya_cast.jpg", "biz_shoe": "i/dep_biz_shoe.jpg"};var HI={};var PX={"x8551": "i/px_x8551.jpg", "x4661": "i/px_x4661.jpg", "x3918": "i/px_x3918.jpg", "x1302": "i/px_x1302.jpg", "x1212": "i/px_x1212.jpg", "x998": "i/px_x998.jpg", "wanglichuan": "i/px_wanglichuan.jpg", "peemak": "i/px_peemak.jpg", "loveletter": "i/px_loveletter.jpg", "feicheng2": "i/px_feicheng2.jpg", "assassin": "i/px_assassin.jpg", "mambo": "i/px_mambo.jpg", "niannian": "i/px_niannian.jpg", "etude": "i/px_etude.jpg", "lizhiqing": "i/px_lizhiqing.jpg", "tianyou": "i/px_tianyou.jpg", "whatatrip": "i/px_whatatrip.jpg", "forest": "i/px_forest.jpg", "adventure": "i/px_adventure.jpg", "feicheng1": "i/px_feicheng1.jpg", "threetimes": "i/px_threetimes.jpg", "redballoon": "i/px_redballoon.jpg", "summerstail": "i/px_summerstail.jpg", "trip_a": "i/px_trip_a.jpg", "forest1": "i/px_forest1.jpg", "forest2": "i/px_forest2.jpg", "adv1": "i/px_adv1.jpg", "adv2": "i/px_adv2.jpg", "k230": "i/px_k230.jpg", "k138": "i/px_k138.jpg", "k91": "i/px_k91.jpg", "z1302": "i/px_z1302.jpg", "sky": "i/px_sky.jpg", "card_shuqi": "i/px_card_shuqi.jpg", "card_vivian": "i/px_card_vivian.jpg", "card_suikai": "i/px_card_suikai.jpg", "card_sakai": "i/px_card_sakai.jpg", "card_yao": "i/px_card_yao.jpg", "card_gaoyuqiao": "i/px_card_gaoyuqiao.jpg", "card_fang": "i/px_card_fang.jpg", "card_kashiwabara": "i/px_card_kashiwabara.jpg", "card_davika": "i/px_card_davika.jpg", "card_liankai": "i/px_card_liankai.jpg", "card_toyokawa": "i/px_card_toyokawa.jpg", "card_sun": "i/px_card_sun.jpg", "card_mario": "i/px_card_mario.jpg", "card_geyou": "i/px_card_geyou.jpg", "ev_cnr": "i/px_ev_cnr.jpg", "ev_jm": "i/px_ev_jm.jpg", "ev_thai": "i/px_ev_thai.jpg", "ev_bom": "i/px_ev_bom.jpg", "ev_cnn": "i/px_ev_cnn.jpg", "ev_kt25": "i/px_ev_kt25.jpg", "ev_br": "i/px_ev_br.jpg", "ev_sina": "i/px_ev_sina.jpg", "ev_jmf": "i/px_ev_jmf.jpg", "ev_jmbox": "i/px_ev_jmbox.jpg", "ev_feng": "i/px_ev_feng.jpg", "ev_jm2": "i/px_ev_jm2.jpg", "ev_swiss": "i/px_ev_swiss.jpg", "ev_sanya": "i/px_ev_sanya.jpg", "ev_trib": "i/px_ev_trib.jpg", "ig_davika": "i/px_ig_davika.jpg", "ig_mario": "i/px_ig_mario.jpg"};var AUD="i/bgm.mp3";</script>
+<script>
+(function(){
+'use strict';
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var clamp=function(x,a,b){return Math.max(a,Math.min(b,x))};
+var prog=function(t,a,b){return clamp((t-a)/(b-a),0,1)};
+var eo=function(x){return 1-Math.pow(1-x,3)};
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var hexv=function(h){return [1,3,5].map(function(i){return parseInt(h.substr(i,2),16)/255})};
+function grad(g,y0,y1,stops){var l=g.createLinearGradient(0,y0,0,y1);stops.forEach(function(s){l.addColorStop(s[0],s[1])});return l}
+
+/* ========= 水面 shader：高度場折射＋自寫 Voronoi 焦散 ========= */
+var VS='attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}';
+var FS=[
+'precision highp float;varying vec2 v;uniform sampler2D A,B;uniform float T,HZ,ASP,AMP;uniform vec3 DEEP,GL;uniform float SX;uniform vec3 DROP[6];',
+'float wave(vec2 p){float s=0.;s+=sin(p.x*1.3+p.y*2.1+T*.9)*.5;s+=sin(p.x*-2.7+p.y*3.4+T*1.3)*.28;s+=sin(p.x*4.9+p.y*5.7-T*1.7)*.16;s+=sin(p.x*-9.1+p.y*10.3+T*2.3)*.08;s+=sin(p.x*17.+p.y*19.-T*3.1)*.04;return s;}',
+'float hgt(vec2 uv){float d=max(uv.y-HZ,0.)/(1.-HZ);vec2 q=vec2((uv.x-.5)*ASP,1.)/(d+.14)*1.1;float h=wave(q)*(.12+d*.9);',
+'for(int i=0;i<6;i++){vec2 e=(uv-DROP[i].xy)*vec2(ASP,3.2);float r=length(e),a=T-DROP[i].z;if(a>0.&&a<5.){h+=sin(r*52.-a*9.)*exp(-r*3.6-a*.9)*smoothstep(a*.62+.05,a*.62-.05,r)*.75;}}return h;}',
+'vec2 H2(vec2 p){p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));return fract(sin(p)*43758.5453);}',
+'float vor(vec2 p){vec2 i=floor(p),f=fract(p);float m=1.;for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){vec2 g=vec2(float(x),float(y));vec2 o=H2(i+g);o=.5+.5*sin(T*.55+6.283*o);vec2 r=g+o-f;m=min(m,dot(r,r));}return m;}',
+'void main(){vec3 c;if(v.y<HZ){c=texture2D(A,v).rgb;}else{',
+' float d=(v.y-HZ)/(1.-HZ);float e=.004;vec2 n=vec2(hgt(v+vec2(e,0.))-hgt(v-vec2(e,0.)),hgt(v+vec2(0.,e))-hgt(v-vec2(0.,e)))/(2.*e)*.02;',
+' vec2 r=vec2(v.x+n.x*AMP,HZ-(v.y-HZ)*1.02+n.y*AMP*1.7);r.y=clamp(r.y,0.,HZ-.002);r.x=clamp(r.x,0.,1.);',
+' vec3 s=texture2D(B,r).rgb;float F=mix(.94,.46,pow(d,.8));c=mix(DEEP,s,F);',
+' vec2 q=vec2((v.x-.5)*ASP,1.)/(d+.25)*2.2;float m=vor(q+n*3.);float ca=pow(m,1.6)*d*d;c+=(DEEP*1.4+vec3(.12,.13,.13))*ca*.9;',
+' float b=exp(-pow((v.x-SX)*ASP/(.05+d*.42),2.));c+=GL*b*smoothstep(.1,.42,abs(n.y)+abs(n.x)*.5)*(.35+.65*d);',
+' c=mix(c,texture2D(A,vec2(v.x,HZ-.004)).rgb,exp(-d*70.)*.8);}',
+'float g=fract(sin(dot(v*vec2(911.,577.)+T,vec2(12.9898,78.233)))*43758.5453)-.5;c+=g*.022;gl_FragColor=vec4(c,1.);}'
+].join('\n');
+
+function Water(id,o){
+  var cv=document.getElementById(id),self=this;
+  this.cv=cv;this.o=o;this.t0=null;this.vis=false;this.dropZ=-99;this.dropXY=[.5,.8];
+  var gl=cv.getContext('webgl',{antialias:false,alpha:false,preserveDrawingBuffer:true});
+  this.gl=gl;this.A=document.createElement('canvas');this.B=o.refl?document.createElement('canvas'):null;this.base=document.createElement('canvas');this.base2=o.refl?document.createElement('canvas'):null;
+  if(gl){
+    var sh=function(ty,src){var s=gl.createShader(ty);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(s));return s};
+    var P=gl.createProgram();gl.attachShader(P,sh(gl.VERTEX_SHADER,VS));gl.attachShader(P,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(P);gl.useProgram(P);
+    gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+    var loc=gl.getAttribLocation(P,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+    this.u={};['A','B','T','HZ','ASP','AMP','DEEP','GL','SX','DROP'].forEach(function(n){self.u[n]=gl.getUniformLocation(P,n)});
+    this.tex=[0,1].map(function(i){var t=gl.createTexture();gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,t);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t});
+    gl.uniform1i(this.u.A,0);gl.uniform1i(this.u.B,1);
+  } else {this.g2=cv.getContext('2d')}
+  this.resize();
+
+}
+Water.prototype.resize=function(){
+  var r=this.cv.getBoundingClientRect();if(!r.width)return;var dpr=Math.min(devicePixelRatio||1,1.5);
+  var W=Math.min(1700,Math.round(r.width*dpr)),H=Math.round(W*r.height/r.width);
+  if(W===this.W&&H===this.H)return;this.W=W;this.H=H;this.cv.width=W;this.cv.height=H;
+  var sW=Math.min(1700,W),sH=Math.round(sW*H/W);this.sW=sW;this.sH=sH;
+  [this.A,this.B,this.base,this.base2].forEach(function(c){if(c){c.width=sW;c.height=sH}});
+  this.o.base(this.base.getContext('2d'),sW,sH,false);if(this.base2)this.o.base(this.base2.getContext('2d'),sW,sH,true);
+  this.settled=false;this.uploaded=false;
+  if(this.gl)this.gl.viewport(0,0,W,H);
+};
+Water.prototype.frame=function(t){
+  this.T=t;var o=this.o,gl=this.gl,W=this.sW,H=this.sH;if(!W)return;
+  var dyn=!this.settled;
+  if(dyn){
+    var a=this.A.getContext('2d');a.drawImage(this.base,0,0);if(o.move)o.move(a,W,H,t,false);
+    if(this.B){var b=this.B.getContext('2d');b.drawImage(this.base2,0,0);if(o.move)o.move(b,W,H,t,true)}
+    if(o.settleAt&&t>o.settleAt)this.settled=true;
+  }
+  if(gl){
+    if(dyn||!this.uploaded){
+      gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.tex[0]);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,this.A);
+      gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,this.tex[1]);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,this.B||this.A);this.uploaded=true;
+    }
+    var u=this.u;gl.uniform1f(u.T,t);gl.uniform1f(u.HZ,o.hz);gl.uniform1f(u.ASP,this.W/this.H);gl.uniform1f(u.AMP,o.amp||.05);
+    gl.uniform3fv(u.DEEP,hexv(o.deep));gl.uniform3fv(u.GL,o.glint||[0,0,0]);gl.uniform1f(u.SX,o.sx==null?.5:o.sx);gl.uniform3fv(u.DROP,new Float32Array(this.drops||[0,0,-99,0,0,-99,0,0,-99,0,0,-99,0,0,-99,0,0,-99]));
+    gl.drawArrays(gl.TRIANGLES,0,3);
+  } else {
+    var g=this.g2,c=this.cv.width,d=this.cv.height,hy=o.hz*d;g.drawImage(this.A,0,0,c,d);
+    g.save();g.translate(0,2*hy);g.scale(1,-1);g.globalAlpha=.7;g.drawImage(this.B||this.A,0,0,c,d);g.restore();
+    g.fillStyle=o.deep+'88';g.fillRect(0,hy,c,d-hy);
+  }
+};
+
+/* ========= 字標：沿用 teaser v12 的「城裡」製圖字＋「戲外」倒影 ========= */
+var P2={};'城裡戲外'.split('').forEach(function(c){P2[c]=new Path2D(GLY[c].d)});
+function wordBase(W,H,hz){var s=Math.min(W*.36,H*.27),gap=s*.13,x0=(W-(2*s+gap))/2,base=hz*H-.2*s;return {s:s,gap:gap,x0:x0,base:base}}
+var SKY=new Image();SKY.onload=function(){scenes.forEach(function(w){w.W=0;w.settled=false;w.resize()})};setTimeout(function(){SKY.src=PX.sky},0);
+function heroBase(hz){return function(g,W,H,refl){
+  g.fillStyle='#070b10';g.fillRect(0,0,W,H);if(SKY.complete&&SKY.naturalWidth){var sh=hz*H,sc=Math.max(W/SKY.width,sh/SKY.height),dw=SKY.width*sc,dh=SKY.height*sc;g.drawImage(SKY,(W-dw)/2,(sh-dh)/2,dw,dh);}g.fillStyle=grad(g,0,hz*H,[[0,'rgba(7,11,16,.1)'],[.7,'rgba(10,18,26,.12)'],[1,'rgba(38,58,74,.75)']]);g.fillRect(0,0,W,hz*H);
+  }}
+function heroMove(hz,start){return function(g,W,H,t,refl){
+  t+=start;var w=wordBase(W,H,hz),K=w.s/1000;
+  if(refl){var f=eo(prog(t,2.2,3.6));g.fillStyle='rgba(246,249,251,'+(.1+.86*f)+')';['戲','外'].forEach(function(c,i){g.save();g.translate(w.x0+i*(w.s+w.gap),w.base);g.scale(K,-K);g.fill(P2[c]);g.restore()});return}
+  /* 輔助線 */
+  var ga=eo(prog(t,0,1.1))*(.72-.38*prog(t,3,4.2));g.strokeStyle='rgba(176,134,89,'+ga+')';g.lineWidth=1;
+  [783,0,-170].forEach(function(y,k){var e=W/2*eo(prog(t,0+k*.08,1+k*.08)),sy=w.base-y*K;g.beginPath();g.moveTo(W/2-e,sy);g.lineTo(W/2+e,sy);g.stroke()});
+  [0,500,1000].forEach(function(x,ci){[0,1].forEach(function(col){var sx=w.x0+col*(w.s+w.gap)+x*K,e=eo(prog(t,.2+ci*.08,1.1+ci*.08));g.beginPath();g.moveTo(sx,w.base-860*K);g.lineTo(sx,w.base-860*K+1060*K*e);g.stroke()})});
+  ['城','裡'].forEach(function(c,i){
+    var fh=eo(prog(t,2+i*.15,3.3+i*.15));
+    g.save();g.translate(w.x0+i*(w.s+w.gap),w.base);g.scale(K,-K);
+    g.save();g.clip(P2[c]);g.setTransform(1,0,0,1,0,0);g.fillStyle='rgba(246,249,251,'+(.08+.14*fh)+')';g.fillRect(0,0,W,H);
+    g.strokeStyle='rgba(246,249,251,'+(.72*fh)+')';g.lineWidth=Math.max(1,w.s/150);var st=w.s/21,sx=w.x0+i*(w.s+w.gap)-w.s*.2,lim=fh*w.s*2.4;for(var d=0;d<lim;d+=st){g.beginPath();g.moveTo(sx+d,w.base-w.s*1.0);g.lineTo(sx+d-w.s*1.2,w.base+w.s*.3);g.stroke()}
+    g.restore();
+    g.lineWidth=1.8/K;g.strokeStyle='rgba(246,249,251,.96)';var oa=clamp(prog(t,.7+i*.2,2.3+i*.2)+.04,0,1);g.setLineDash([14000*oa,14000]);g.stroke(P2[c]);g.setLineDash([]);g.restore();
+  });
+}}
+
+/* ========= 高斯潑濺式渲染：照片＋景深 → 排序過的柔邊橢圓，真透視鏡頭 ========= */
+var PVS=['attribute vec4 a;attribute vec4 b;uniform sampler2D A;uniform float M,S,T,ASP,PS,ZA,YAW,PIT,HERO;uniform vec3 PTR;varying vec3 c;varying float k,ang,al;',
+'void main(){vec2 uv=a.xy;float r2=fract(a.w*57.31);float sw=a.w*.16+uv.x*.62+uv.y*.22,w=.34;',
+'float m=clamp((M*(1.+w)-sw)/w,0.,1.);m=m*m*(3.-2.*m);float s=clamp((S*(1.+w)-(1.-sw))/w,0.,1.);s=s*s*(3.-2.*s);float am=sin(m*3.14159)+s;',
+'vec3 d=vec3(sin(uv.y*7.+T*.5+a.w*6.283)+.6*sin(uv.x*13.-T*.35+r2*9.),cos(uv.x*8.-T*.42+r2*6.283)+.6*cos(uv.y*15.+T*.3+a.w*9.),sin(uv.x*5.+uv.y*9.+T*.37+a.w*6.283));',
+'vec3 P=vec3((uv.x-.5)*ASP,.5-uv.y,(a.z-.5)*ZA);float os=1.11;',
+'if(HERO>.5){P=mix(P,vec3((b.x-.5)*ASP,.5-b.y,b.z),m);os=mix(1.11,1.,m);}',
+'P+=(d*vec3(.2,.17,.5)*(.35+r2)+vec3(.2,.08,.34)*a.w)*am+d*.0004*(1.-m*HERO);',
+'vec2 dp=(uv-PTR.xy)*vec2(ASP,1.);float rr=length(dp);float pu=PTR.z*exp(-rr*rr*46.)*(1.-HERO);P.xy+=dp*vec2(1.,-1.)/(rr+.001)*pu*.05*(.4+r2);P.z+=pu*.26*(.3+r2);',
+'float cy=cos(YAW),sy=sin(YAW),cp=cos(PIT),sp=sin(PIT);P=vec3(cy*P.x+sy*P.z,P.y,-sy*P.x+cy*P.z);P=vec3(P.x,cp*P.y-sp*P.z,sp*P.y+cp*P.z);',
+'float D=1.55,z=max(D-P.z,.25);vec2 sc=P.xy*D/z*os;gl_Position=vec4(sc.x/(ASP*.5),sc.y/.5,0.,1.);',
+'k=min(am+pu*1.3,1.);float sz=PS*D/z*(1.+k*(.8+r2*2.3));',
+'c=texture2D(A,uv).rgb;al=1.-.5*k;',
+'if(HERO>.5){vec3 tc=b.w>.5?mix(vec3(.42,.3,.19),vec3(.98,.98,.97),smoothstep(.2,1.,b.z/.055)):vec3(.6,.72,.8);c=mix(c,tc,m);if(b.w<.5){al=mix(al,.05+.12*r2,m);sz=mix(sz,sz*(.32+r2*.5),m);}else{sz=mix(sz,sz*.68,m);}}',
+'gl_PointSize=min(sz,72.);ang=a.w*6.283;}'].join('\n');
+var PFS='precision mediump float;varying vec3 c;varying float k,ang,al;void main(){vec2 q=(gl_PointCoord-.5)*2.;float ca=cos(ang),sa=sin(ang);q=vec2(ca*q.x-sa*q.y,sa*q.x+ca*q.y);float e=1.+k*1.35;q*=vec2(e,1./sqrt(e));float r=dot(q,q);if(r>1.)discard;float g=exp(-r*2.7)*al;gl_FragColor=vec4(c*g,g);}';
+var imgs={},deps={};function loadOne(cache,src,n){return cache[n]||(cache[n]=new Promise(function(ok,no){var i=new Image();i.onload=function(){ok(i)};i.onerror=no;i.src=src[n]}))}
+function cover(im,w,h,fy){var c=document.createElement('canvas');c.width=w;c.height=h;var g=c.getContext('2d'),sc=Math.max(w/im.width,h/im.height),dw=im.width*sc,dh=im.height*sc;g.drawImage(im,(w-dw)/2,(h-dh)*(fy==null?.5:fy),dw,dh);return c}
+var CAN_SPLAT=(function(){var c=document.createElement('canvas'),g=c.getContext('webgl');var ok=!!g&&g.getParameter(g.MAX_VERTEX_TEXTURE_IMAGE_UNITS)>=1;var x=g&&g.getExtension('WEBGL_lose_context');if(x)x.loseContext();return ok})();
+function Splat(id,o){var self=this;this.cv=document.getElementById(id);this.host=this.cv.parentElement;this.o=o;this.S=o.hero?0:.9;this.M=0;this.pulse=0;this.ptr=[.5,.5,0];this.ptrT=0;this.vis=false;this.ready=false;this.yaw=0;this.pit=0;this.px=0;this.py=0;
+  this.fail=!CAN_SPLAT;
+
+  if(this.fail){if(o.img&&IMG[o.img]){this.host.style.background='center/cover url('+IMG[o.img]+')'}this.cv.style.display='none'}
+}
+Splat.prototype.ensure=function(){var self=this,o=this.o;if(this.fail||this.gl)return;
+  var gl=this.cv.getContext('webgl',{antialias:false,alpha:true,premultipliedAlpha:true});if(!gl){return}this.gl=gl;
+  var sh=function(ty,src){var x=gl.createShader(ty);gl.shaderSource(x,src);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(x));return x};
+  var P=gl.createProgram();gl.attachShader(P,sh(gl.VERTEX_SHADER,PVS));gl.attachShader(P,sh(gl.FRAGMENT_SHADER,PFS));gl.linkProgram(P);gl.useProgram(P);this.P=P;
+  this.u={};['A','M','S','T','ASP','PS','ZA','YAW','PIT','HERO','PTR'].forEach(function(n){self.u[n]=gl.getUniformLocation(P,n)});
+  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+  var t=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,t);[[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]].forEach(function(q){gl.texParameteri(gl.TEXTURE_2D,q[0],q[1])});
+  gl.uniform1i(this.u.A,0);this.W=0;
+  Promise.all([loadOne(imgs,IMG,o.img),loadOne(deps,DEP,o.img)]).then(function(r){if(!self.gl)return;self.im=r[0];self.dep=r[1];self.resize();self.ready=true;if(RM)self.draw(0)});
+};
+Splat.prototype.release=function(){if(!this.gl)return;var x=this.gl.getExtension('WEBGL_lose_context');if(x)x.loseContext();var n=this.cv.cloneNode(false);this.cv.parentNode.replaceChild(n,this.cv);this.cv=n;this.gl=null;this.ready=false;this.W=0};
+Splat.prototype.resize=function(){
+  if(!this.gl||!this.im)return;var gl=this.gl,o=this.o,r=this.cv.getBoundingClientRect();if(!r.width)return;var dd=Math.min(devicePixelRatio||1,1.5),W=Math.min(1700,Math.round(r.width*dd)),H=Math.round(W*r.height/r.width);
+  if(W===this.W&&H===this.H)return;this.W=W;this.H=H;this.cv.width=W;this.cv.height=H;gl.viewport(0,0,W,H);
+  var w=Math.min(1280,W),h=Math.round(w*H/W);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,cover(this.im,w,h,o.fy));
+  var dw=Math.min(480,w),dh=Math.max(2,Math.round(dw*H/W)),dpx=cover(this.dep,dw,dh,o.fy).getContext('2d').getImageData(0,0,dw,dh).data;
+  var cap=o.cap||(innerWidth<760?70000:170000),step=Math.max(2.1*dd,Math.sqrt(W*H/cap)),cx=Math.ceil(W/step),cy=Math.ceil(H/step),N=cx*cy,rr=rng(11),items=new Array(N),i=0;
+  for(var y=0;y<cy;y++)for(var x=0;x<cx;x++){var u=(x+.5)/cx,v=(y+.5)/cy,de=dpx[(Math.floor(v*dh)*dw+Math.floor(u*dw))*4]/255;items[i++]=[u,v,de,rr()]}
+  items.sort(function(p,q){return p[2]-q[2]});
+  var A=new Float32Array(N*4),B=new Float32Array(N*4);
+  items.forEach(function(q,j){A[j*4]=q[0];A[j*4+1]=q[1];A[j*4+2]=q[2];A[j*4+3]=q[3]});
+  if(o.hero){var hits=heroTargets(W,H,o.hz),gc=Math.floor(N*.9);hits.sort(function(p,q){return p[2]-q[2]});
+    for(i=0;i<N;i++){var isG=rr()<gc/N&&hits.length;if(isG){var ht=hits[Math.floor((i/N)*hits.length)];B[i*4]=ht[0];B[i*4+1]=ht[1];B[i*4+2]=ht[2];B[i*4+3]=1}else{B[i*4]=rr();B[i*4+1]=rr()*o.hz;B[i*4+2]=(rr()-.5)*.7;B[i*4+3]=0}}
+  }
+  var bind=function(name,arr){var L=gl.getAttribLocation(self_P,name);var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,arr,gl.STATIC_DRAW);gl.enableVertexAttribArray(L);gl.vertexAttribPointer(L,4,gl.FLOAT,false,0,0)},self_P=this.P;
+  bind('a',A);bind('b',B);this.N=N;this.ps=step*2.7;
+};
+Splat.prototype.draw=function(t){var gl=this.gl,u=this.u,o=this.o;if(!gl||!this.N)return;this.ptr[2]+=(this.ptrT-this.ptr[2])*.08;
+  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.uniform1f(u.M,this.M);gl.uniform1f(u.S,this.S);gl.uniform1f(u.T,t);gl.uniform1f(u.ASP,this.W/this.H);gl.uniform1f(u.PS,this.ps);gl.uniform1f(u.ZA,o.za||.62);gl.uniform1f(u.YAW,this.yaw);gl.uniform1f(u.PIT,this.pit);gl.uniform1f(u.HERO,o.hero?1:0);gl.uniform3f(u.PTR,this.ptr[0],this.ptr[1],this.ptr[2]);gl.drawArrays(gl.POINTS,0,this.N)};
+/* 字標實體：城裡的輪廓內取點，分布在厚度方向，正面多、側面少 */
+function heroTargets(W,H,hz){var w=wordBase(W,H,hz),sc=.5,mw=Math.round(W*sc),mh=Math.round(H*sc),c=document.createElement('canvas');c.width=mw;c.height=mh;var g=c.getContext('2d',{willReadFrequently:true}),K=w.s/1000;g.setTransform(sc,0,0,sc,0,0);g.fillStyle='#fff';['城','裡'].forEach(function(ch,i){g.save();g.translate(w.x0+i*(w.s+w.gap),w.base);g.scale(K,-K);g.fill(P2[ch]);g.restore()});
+  var d=g.getImageData(0,0,mw,mh).data,out=[],r=rng(5);for(var y=0;y<mh;y++)for(var x=0;x<mw;x++){if(d[(y*mw+x)*4+3]>120){for(var n=0;n<3;n++){var f=r();out.push([(x+r())/mw,(y+r())/mh,f<.55?.055:r()*.055])}}}return out}
+function heroMove3D(g,W,H,t,refl){if(!refl)return;var w=wordBase(W,H,HZ_H),K=w.s/1000,f=eo(prog(t,3,5.2));g.fillStyle='rgba(246,249,251,'+.92*f+')';['戲','外'].forEach(function(c,i){g.save();g.translate(w.x0+i*(w.s+w.gap),w.base);g.scale(K,-K);g.fill(P2[c]);g.restore()})}
+
+function heroSolid(hz){return function(g,W,H,t,refl){var w=wordBase(W,H,hz),K=w.s/1000;(refl?["戲","外"]:["城","裡"]).forEach(function(c,i){if(!refl){g.save();g.translate(w.x0+i*(w.s+w.gap)+w.s*.012,w.base+w.s*.012);g.scale(K,-K);g.fillStyle="#6b4d2f";g.fill(P2[c]);g.restore()}g.save();g.translate(w.x0+i*(w.s+w.gap),w.base);g.scale(K,-K);g.fillStyle=refl?"rgba(246,249,251,.92)":"#fafaf8";g.fill(P2[c]);g.restore()})}}
+var HZ_H=.56,scenes=[],heroOn=true;
+function add(id,sc){var w=new Water(id,sc);scenes.push(w);return w}
+var hero=add('c-hero',{hz:HZ_H,amp:.055,deep:'#0f1b24',glint:[.05,.05,.045],refl:true,base:heroBase(HZ_H),move:function(g,W,H,t,refl){if(heroOn||refl)heroSolid(HZ_H)(g,W,H,t,refl)},settleAt:0});
+add('c-end',{hz:HZ_H,amp:.055,deep:'#0f1b24',glint:[.05,.05,.045],refl:true,base:heroBase(HZ_H),move:heroSolid(HZ_H),settleAt:.1});
+var pHero=new Splat('c-hp',{img:'zurich',hero:true,hz:HZ_H,fy:.6,za:.5});
+var parts=[pHero];
+
+/* ========= 3D 舞台：同一批高斯橢圓，隨捲動在場景間散開重組 ========= */
+var SVS=['attribute vec4 a;uniform sampler2D A,B,DA,DB;uniform float M,T,ASP,PS,ZA,YAW,PIT,DOL,FLAT,OS,MIR;uniform vec3 PTR;varying vec3 c;varying float k,ang,al;',
+'void main(){vec2 uv=a.xy;float r2=a.w;float sw=a.z*.16+uv.x*.62+uv.y*.22,w=.34;float m=clamp((M*(1.+w)-sw)/w,0.,1.);m=m*m*(3.-2.*m);float am=sin(m*3.14159);',
+'vec2 su=uv;float low=step(.5,uv.y);if(MIR>.5){float yy=low>.5?1.-uv.y:uv.y;su.y=.12+yy*1.12;}',
+'float z=mix(texture2D(DA,su).r,texture2D(DB,su).r,m);',
+'vec3 d=vec3(sin(uv.y*7.+T*.5+a.z*6.283)+.6*sin(uv.x*13.-T*.35+r2*9.),cos(uv.x*8.-T*.42+r2*6.283)+.6*cos(uv.y*15.+T*.3+a.z*9.),sin(uv.x*5.+uv.y*9.+T*.37+a.z*6.283));',
+'z=mix(z,.2,FLAT);vec3 P=vec3((uv.x-.5)*ASP,.5-uv.y+(MIR>.5?(low>.5?-.014:.014):0.),(z-.5)*ZA*(1.-.6*MIR));P+=(d*vec3(.2,.17,.5)*(.35+r2)+vec3(.2,.08,.34)*a.z)*am+d*.0007;',
+'vec2 dp=(uv-PTR.xy)*vec2(ASP,1.);float rr=length(dp);float pu=PTR.z*exp(-rr*rr*40.);P.xy+=dp*vec2(1.,-1.)/(rr+.001)*pu*.05*(.4+r2);P.z+=pu*.3*(.3+r2);',
+'float cy=cos(YAW),sy=sin(YAW),cp=cos(PIT),sp=sin(PIT);P=vec3(cy*P.x+sy*P.z,P.y,-sy*P.x+cy*P.z);P=vec3(P.x,cp*P.y-sp*P.z,sp*P.y+cp*P.z);',
+'float D=1.55,zc=max(D-P.z-DOL,.25);vec2 sc=P.xy*D/zc*OS;gl_Position=vec4(sc.x/(ASP*.5),sc.y/.5,0.,1.);',
+'k=min(am+pu*1.3,1.);c=mix(texture2D(A,su).rgb,texture2D(B,su).rgb,m);if(MIR>.5){c*=mix(1.,.6,low);}al=1.-.5*k;gl_PointSize=min(PS*D/zc*(1.+k*(.8+r2*2.3))*(1.+FLAT*.9),72.);ang=a.z*6.283;}'].join('\n');
+var SFS='precision mediump float;varying vec3 c;varying float k,ang,al;void main(){vec2 q=(gl_PointCoord-.5)*2.;float ca=cos(ang),sa=sin(ang);q=vec2(ca*q.x-sa*q.y,sa*q.x+ca*q.y);float e=1.22+k*1.3;q*=vec2(e,1./sqrt(e));float r=dot(q,q);if(r>1.)discard;float g=exp(-r*2.5)*al;gl_FragColor=vec4(c*g,g);}';
+var FY={};var REAL={pair_th:1,pair_cn:1,pair_wl:1,pair_ll:1};
+var cv=document.getElementById('stage'),gl=cv.getContext('webgl',{antialias:false,alpha:false}),S={dy:0,dp:0,u:{},sc:{},ok:false,yaw:0,pit:0,ptr:[.5,.5,0],ptrT:0,px:0,py:0};
+if(gl&&(gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)<4||!gl.getExtension('OES_element_index_uint')))gl=null;
+var stepEls=[].slice.call(document.querySelectorAll('[data-scene]'));
+var deckEl=document.getElementById('deck'),pagesEl=document.getElementById('pages');function fitDeck(){var k=Math.min(innerWidth/1600,innerHeight/900);deckEl.style.width=1600*k+'px';deckEl.style.height=900*k+'px';pagesEl.style.transform='scale('+k+')';S.k=k}
+if(gl){
+  var mk=function(ty,src){var x=gl.createShader(ty);gl.shaderSource(x,src);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(x));return x};
+  var Pg=gl.createProgram();gl.attachShader(Pg,mk(gl.VERTEX_SHADER,SVS));gl.attachShader(Pg,mk(gl.FRAGMENT_SHADER,SFS));gl.linkProgram(Pg);gl.useProgram(Pg);
+  ['A','B','DA','DB','M','T','ASP','PS','ZA','YAW','PIT','DOL','PTR','FLAT','OS','MIR'].forEach(function(n){S.u[n]=gl.getUniformLocation(Pg,n)});
+  gl.uniform1i(S.u.A,0);gl.uniform1i(S.u.B,1);gl.uniform1i(S.u.DA,2);gl.uniform1i(S.u.DB,3);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(.086,.133,.173,1);
+  S.vb=gl.createBuffer();
+}
+function newTex(src){var t=gl.createTexture();gl.activeTexture(gl.TEXTURE4);gl.bindTexture(gl.TEXTURE_2D,t);[[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]].forEach(function(q){gl.texParameteri(gl.TEXTURE_2D,q[0],q[1])});gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,src);return t}
+function grid(){var dd=Math.min(devicePixelRatio||1,1.25),rc=cv.getBoundingClientRect(),W=Math.min(1600,Math.round(rc.width*dd)),H=Math.round(W*9/16);S.W=W;S.H=H;cv.width=W;cv.height=H;gl.viewport(0,0,W,H);
+  var cap=innerWidth<760?42000:100000,step=Math.max(2.3*dd,Math.sqrt(W*H/cap)),cx=Math.ceil(W/step),cy=Math.ceil(H/step),N=cx*cy,A=new Float32Array(N*4),r=rng(17),i=0;
+  for(var y=0;y<cy;y++)for(var x=0;x<cx;x++){A[i++]=(x+.5)/cx;A[i++]=(y+.5)/cy;A[i++]=r();A[i++]=r()}S.grid=A;S.N=N;S.ps=step*2.8;
+  gl.bindBuffer(gl.ARRAY_BUFFER,S.vb);gl.bufferData(gl.ARRAY_BUFFER,A,gl.STATIC_DRAW);var L=gl.getAttribLocation(Pg,'a');gl.enableVertexAttribArray(L);gl.vertexAttribPointer(L,4,gl.FLOAT,false,0,0)}
+function comp(im,w,h,fy,isD){return cover(im,w,h,fy);var c=document.createElement('canvas');c.width=w;c.height=h;var g=c.getContext('2d');if(isD){g.fillStyle='#000';g.fillRect(0,0,w,h)}else{g.filter='blur('+Math.round(w/40)+'px) brightness(.42)';g.drawImage(cover(im,w,h,.3),0,0);g.filter='none'}
+  var dh=h*1.02,dw=im.width*dh/im.height,x=w*.67-dw/2,t=document.createElement('canvas');t.width=w;t.height=h;var q=t.getContext('2d');q.drawImage(im,x,0,dw,dh);q.globalCompositeOperation='destination-in';var l=q.createLinearGradient(x,0,x+dw,0);l.addColorStop(0,'#0000');l.addColorStop(.14,'#000f');l.addColorStop(.86,'#000f');l.addColorStop(1,'#0000');q.fillStyle=l;q.fillRect(0,0,w,h);g.drawImage(t,0,0);return c}
+var fyKey='';
+function prep(n){return Promise.all([loadOne(imgs,IMG,n),loadOne(deps,DEP,n)]).then(function(r){fyKey=n;var fy=FY[n],w=Math.min(1280,S.W),h=Math.round(w*S.H/S.W),dw=Math.min(480,w),dh=Math.max(2,Math.round(dw*S.H/S.W)),dc=comp(r[1],dw,dh,fy,true),px=dc.getContext('2d').getImageData(0,0,dw,dh).data,G=S.grid,N=S.N,key=new Float32Array(N);
+    for(var i=0;i<N;i++){key[i]=px[(Math.floor(G[i*4+1]*dh)*dw+Math.floor(G[i*4]*dw))*4]}
+    var idx=new Uint32Array(N);for(i=0;i<N;i++)idx[i]=i;idx.sort(function(p,q){return key[p]-key[q]});
+    var ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,idx,gl.STATIC_DRAW);
+    if(S.sc[n]){gl.deleteTexture(S.sc[n].c);gl.deleteTexture(S.sc[n].d);gl.deleteBuffer(S.sc[n].ib)}
+    S.sc[n]={c:newTex(comp(r[0],w,h,fy,false)),d:newTex(dc),ib:ib}})}
+var PS={"2": "hook", "3": "views", "4": "imp_travel", "5": "core_pos", "6": "core_city", "7": "zurich", "8": "core_three", "9": "postcard", "10": "works", "11": "zurich", "12": "zurich_people", "13": "zurich", "14": "zurich_cast", "15": "bangkok", "16": "bangkok_people", "17": "bangkok_cast", "18": "otaru", "19": "otaru_people", "20": "otaru_cast", "21": "sanya", "22": "sanya_people", "23": "sanya_cast", "24": "depart", "25": "imp_zurich", "26": "imp_bangkok", "27": "imp_otaru", "28": "imp_sanya", "29": "biz_shoe", "30": "biz_cafe", "31": "depart", "32": "biz_plan", "33": "follow", "34": "walk", "35": "rest", "36": "team_c", "37": "team_d", "38": "team_b"};stepEls.forEach(function(e,i){if(PS[i+1])e.dataset.scene=PS[i+1]});var order=[];stepEls.forEach(function(e){var n=e.dataset.scene;if(order.indexOf(n)<0)order.push(n)});
+function loadAll(){var q=order.slice();var c0=(typeof cur==='number'?cur:0);q.sort(function(a,b){function d(n){var m=1e3;stepEls.forEach(function(e,i){if(e.dataset.scene===n)m=Math.min(m,Math.abs(i-c0))});return m}return d(a)-d(b)});var idle=window.requestIdleCallback||function(f){return setTimeout(f,120)};(function nx(){if(S.tr){return setTimeout(nx,400)}var n=q.shift();if(!n)return;prep(n).then(function(){idle(nx)})})()}
+if(gl){fitDeck();grid();loadAll()}else{cv.style.display='none';document.getElementById('scrim').style.background='linear-gradient(#16222c,#16222c)'}
+function bindTex(u,t){gl.activeTexture(gl.TEXTURE0+u);gl.bindTexture(gl.TEXTURE_2D,t)}
+
+var cur=0,tEnter=0,slides=stepEls;
+
+
+var aim=document.getElementById('aimark'),heroEl=document.getElementById('hero'),endEl=document.getElementById('end');S.dol=0;
+function drawStage(t){if(!gl)return;var e=slides[cur],now=performance.now(),na=e.dataset.scene,nb=na,M=0;
+  var mir=e.dataset.mirror?1:0;if(S.tr){M=RM?1:prog(now,S.tr.t0,S.tr.t0+1500);na=S.tr.a;nb=S.tr.b;mir=M<.5?(S.tr.ma||0):(S.tr.mb||0);if(M>=1){if(S.tr.el)S.tr.el.dataset.scene=nb;S.tr=null;na=nb;M=0;mir=e.dataset.mirror?1:0}}
+  if((e===heroEl||e===endEl)&&!S.tr)return;
+  var a=S.sc[na]||S.sc[nb],b=S.sc[nb]||a;aim.style.opacity=(REAL[M>.5?nb:na]||e===heroEl||e===endEl)?0:1;
+  if(!a)return;bindTex(0,a.c);bindTex(1,b.c);bindTex(2,a.d);bindTex(3,b.d);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,M<.5?a.ib:b.ib);
+  var lk=(REAL[na]||REAL[nb])?.6:1,ty=RM?0:S.dy+S.px*.2*lk+Math.sin(t*.27)*.025,tp=RM?0:S.dp+S.py*.1*lk;S.yaw+=(ty-S.yaw)*.05;S.pit+=(tp-S.pit)*.05;S.ptr[2]+=(S.ptrT-S.ptr[2])*.07;
+  S.dol+=((RM||REAL[na]?0:clamp((now-tEnter)/16000,0,1)*.14*(1-M))-S.dol)*.02;
+  gl.clear(gl.COLOR_BUFFER_BIT);var u=S.u;gl.uniform1f(u.M,M*M*(3-2*M));gl.uniform1f(u.T,RM?0:t);gl.uniform1f(u.ASP,S.W/S.H);var rl=REAL[M>.5?nb:na];gl.uniform1f(u.OS,rl?1.:1.17);gl.uniform1f(u.PS,rl?S.ps*1.35:S.ps*1.25);gl.uniform1f(u.ZA,rl?.07:.55);gl.uniform1f(u.YAW,S.yaw);gl.uniform1f(u.PIT,S.pit);gl.uniform1f(u.DOL,S.dol);gl.uniform1f(u.MIR,mir);gl.uniform3f(u.PTR,S.ptr[0],S.ptr[1],RM?0:S.ptr[2]);
+  gl.uniform1f(u.FLAT,1);gl.drawElements(gl.POINTS,S.N,gl.UNSIGNED_INT,0);gl.uniform1f(u.FLAT,0);gl.drawElements(gl.POINTS,S.N,gl.UNSIGNED_INT,0)}
+var pc=document.getElementById('c-plan'),pg=pc.getContext('2d'),mode=0;
+var IK='#22303c',CU='#b08659',MU='#8b949b';
+function sizeP(){var r=pc.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);if(r.width){pc.width=r.width*d;pc.height=r.width*.75*d}}
+function wedge(g,x,y,a,len,sp,al){g.fillStyle='rgba(176,134,89,'+(al||.26)+')';g.beginPath();g.moveTo(x,y);g.arc(x,y,len,a-sp,a+sp);g.closePath();g.fill();g.fillStyle=CU;g.save();g.translate(x,y);g.rotate(a);g.fillRect(-11,-7,18,14);g.restore()}
+function person(g,x,y,c,r){g.fillStyle=c||IK;g.beginPath();g.arc(x,y,r||9,0,7);g.fill()}
+function lbl(g,s,x,y,c,al){g.font='500 14px "Noto Sans TC",sans-serif';g.fillStyle=c||MU;g.textAlign=al||'left';g.textBaseline='middle';g.fillText(s,x,y)}
+function drawPlan(t){
+  var W=800,H=600,g=pg,k=pc.width/W;if(!k)return;g.setTransform(k,0,0,k,0,0);
+  if(mode===2){g.fillStyle='#1c211d'}else{g.fillStyle='#fffdf8'}g.fillRect(0,0,W,H);
+  if(mode===0){
+    var pts=function(u){return [80+u*640,300+Math.sin(u*5.2)*120]};
+    g.strokeStyle='#ebe3d7';g.lineWidth=74;g.lineCap='round';g.beginPath();for(var i=0;i<=60;i++){var q=pts(i/60);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])}g.stroke();
+    var u=(t*.055)%1,lead=u*.76+.14;[0,.03,.058].forEach(function(o,i){var q=pts(lead+o);person(g,q[0]+(i-1)*5,q[1]+[10,-12,8][i])});
+    var a=pts(lead-.1),aim=pts(lead+.03);wedge(g,a[0],a[1],Math.atan2(aim[1]-a[1],aim[0]-a[0]),170,.34);
+    var b=pts(lead+.13),b2=pts(lead+.04);wedge(g,b[0]+24,b[1]-28,Math.atan2(b2[1]-b[1]+28,b2[0]-b[0]-24),90,.42,.2);
+    lbl(g,'主機',a[0]-14,a[1]-24,IK);lbl(g,'手持小機',b[0]+18,b[1]-54,IK);lbl(g,'旅伴',pts(lead+.03)[0]-14,pts(lead+.03)[1]+34,MU);
+  } else if(mode===1||mode===2){
+    var ir=mode===2,line=ir?'#b9c8b5':IK;
+    g.strokeStyle=line;g.lineWidth=5;g.lineCap='butt';g.strokeRect(100,70,600,460);
+    if(!ir){
+      g.fillStyle='#ebe3d7';g.beginPath();g.arc(400,300,92,0,7);g.fill();
+      var ppl=[[400,178],[523,300],[400,422],[277,300]];var sp=Math.floor(t/2.4)%4;
+      ppl.forEach(function(p,i){person(g,p[0],p[1],IK,13);if(i===sp){g.strokeStyle=CU;g.lineWidth=3;for(var r=0;r<3;r++){g.globalAlpha=1-((t*.8+r*.33)%1);g.beginPath();g.arc(p[0],p[1],18+((t*.8+r*.33)%1)*26,0,7);g.stroke()}g.globalAlpha=1}});
+      wedge(g,128,98,Math.atan2(202,272),370,.46);wedge(g,672,502,Math.atan2(-202,-272),370,.46);
+      lbl(g,'餐桌',400,300,IK,'center');lbl(g,'固定機位',118,52,IK);lbl(g,'固定機位',682,552,IK,'right');
+    } else {
+      [[150,110],[150,270],[520,110]].forEach(function(p,i){g.fillStyle='#39423a';g.fillRect(p[0],p[1],130,90);var br=(Math.sin(t*1.5+i)+1)/2;g.fillStyle='rgba(205,220,200,'+(.55+br*.3)+')';g.beginPath();g.arc(p[0]+34,p[1]+45,13+br*1.4,0,7);g.fill()});
+      var up=(t*.1)%1,ux=430+Math.sin(up*6.28)*80,uy=390+Math.cos(up*6.28)*50;g.fillStyle='rgba(225,236,220,.95)';g.beginPath();g.arc(ux,uy,13,0,7);g.fill();
+      g.fillStyle='rgba(176,200,170,.16)';g.beginPath();g.moveTo(675,505);g.arc(675,505,480,Math.PI*1.08,Math.PI*1.42);g.closePath();g.fill();
+      g.fillStyle='#b9c8b5';g.fillRect(664,494,20,20);
+      var r=rng(Math.floor(t*14)+9);g.fillStyle='rgba(205,220,200,.1)';for(i=0;i<420;i++)g.fillRect(r()*W,r()*H,1.6,1.6);
+      var total=Math.floor(t)+8053,hh=Math.floor(total/3600),mm=Math.floor(total%3600/60),ss=total%60,pad=function(n){return(n<10?'0':'')+n};
+      g.font='500 16px "IBM Plex Mono",monospace';g.textAlign='left';g.fillStyle='#d3e0cf';g.fillText('IR   '+pad(hh)+':'+pad(mm)+':'+pad(ss),116,560);if(t%1<.6){g.fillStyle='#d3e0cf';g.beginPath();g.arc(100,560,5,0,7);g.fill()}
+    }
+  } else if(mode===3){
+    var labs=['出發前','旅程中','回到日常後'],ac=Math.floor(t/2)%3;labs.forEach(function(l,i){var cx=135+i*265,cy=290,on=i===ac;g.globalAlpha=on?1:.35;g.fillStyle='#ebe3d7';g.fillRect(cx-105,cy-150,210,290);person(g,cx,cy-70,IK,16);wedge(g,cx,cy+78,-Math.PI/2,125,.3);g.globalAlpha=1;lbl(g,l,cx,cy+182,on?IK:MU,'center')});
+  } else if(mode===4){
+    var nm=['腳步','車聲','河水','餐桌交談'],f=[[7,.75,3],[1.5,.5,.5],[3,.28,1],[4.3,.6,1.6]];
+    nm.forEach(function(n,i){var y=100+i*130;lbl(g,n,60,y,IK);g.strokeStyle=i%2?CU:IK;g.lineWidth=2.4;g.beginPath();for(var x=180;x<=750;x+=3){var u=x/70-t*f[i][2],e=i===0?Math.pow(Math.abs(Math.sin(u*.8)),10):i===3?(Math.sin(u*.33)>0?1:.18):.6+.4*Math.sin(u*.27),v=(Math.sin(u*f[i][0])+.5*Math.sin(u*f[i][0]*2.7+1))*f[i][1]*e*46;x===180?g.moveTo(x,y+v):g.lineTo(x,y+v)}g.stroke()});
+  } else {
+    g.strokeStyle='#ebe3d7';g.lineWidth=1.5;for(var x=60;x<W;x+=68){g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke()}for(var y=40;y<H;y+=68){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke()}
+    g.strokeStyle='#cfdde6';g.lineWidth=44;g.lineCap='round';g.beginPath();g.moveTo(510,-20);g.bezierCurveTo(440,180,520,320,430,620);g.stroke();
+    var S=[[190,180,'林登霍夫高地'],[300,330,'奧古斯丁巷'],[476,300,'大教堂橋']];var cyc=(t*.2)%1.3,pr=clamp(cyc,0,1)*2;
+    g.strokeStyle=CU;g.lineWidth=5;g.lineCap='round';g.setLineDash([3,13]);g.beginPath();g.moveTo(S[0][0],S[0][1]);for(i=0;i<2;i++){var e2=clamp(pr-i,0,1);if(e2>0)g.lineTo(S[i][0]+(S[i+1][0]-S[i][0])*e2,S[i][1]+(S[i+1][1]-S[i][1])*e2)}g.stroke();g.setLineDash([]);
+    S.forEach(function(p,i){person(g,p[0],p[1],pr>=i-.02?CU:MU,10);lbl(g,p[2],p[0]-(i===0?0:6),p[1]+(i===1?34:-30),IK,i===2?'left':'center')});
+    g.fillStyle=IK;g.fillRect(0,516,W,84);lbl(g,'步行　林登霍夫高地 → 奧古斯丁巷 → 大教堂橋',W/2,558,'#f6f9fb','center');
+  }
+}
+
+
+
+var vbs=[].slice.call(document.querySelectorAll('.vb')),vStep=document.querySelector('#views').closest('.step');
+vbs.forEach(function(b){b.addEventListener('click',function(){vbs.forEach(function(o){o.setAttribute('aria-pressed',String(o===b))});if(!gl||vStep.dataset.scene===b.dataset.to)return;S.tr={el:vStep,a:vStep.dataset.scene,b:b.dataset.to,t0:performance.now()}})});
+document.querySelectorAll('.check').forEach(function(c){c.addEventListener('click',function(e){if(e.target.closest('svg'))c.classList.toggle('off')})});
+document.querySelectorAll('.stop summary').forEach(function(x){x.addEventListener('click',function(e){e.preventDefault()})});
+document.querySelectorAll('img[data-i]').forEach(function(i){i.src=IMG[i.dataset.i]});
+document.querySelectorAll('img[data-p]').forEach(function(i){i.src=PX[i.dataset.p]});
+document.querySelectorAll('.tocg button').forEach(function(b){b.addEventListener('click',function(){go(firstOf(b.dataset.go))})});
+document.querySelectorAll('.check path').forEach(function(p,i){p.style.transitionDelay=(i*.32)+'s'});
+var gsc=document.getElementById('gsc'),gw=document.getElementById('gantt'),gout=document.getElementById('gout'),grow=[].slice.call(gw.querySelectorAll('.row'));
+function gset(){var v=+gsc.value,mi=Math.floor(v),y=mi<2?2026:2027,mm=mi<2?11+mi:mi-1;gout.textContent=y+' 年 '+mm+' 月';gw.classList.add('live');grow.forEach(function(r){var s=+r.dataset.s,l=+r.dataset.l;r.classList.toggle('on',v>=s&&v<s+l)})}
+gsc.addEventListener('input',gset);gset();var gh=document.createElement('span');gh.className='hint';gh.textContent='拖曳滑桿，看每個月在做什麼';gsc.closest('.scrub').parentNode.insertBefore(gh,gsc.closest('.scrub'));
+/* 導覽 */
+var CHAP=[['core','一','節目核心宗旨'],['outline','二','節目大綱'],['chapters','三','四部作品'],['impact','四','節目影響力'],['business','五','商務販售方式'],['shoot','六','拍攝方式'],['schedule','七','製作時程'],['broadcast','八','播出資訊'],['team','九','製作團隊']];
+var nav=document.getElementById('nav');nav.innerHTML='<button id="pv" aria-label="上一頁">←</button><span class="pn" id="pn"></span><button id="nx" aria-label="下一頁">→</button><span class="sp"></span>'+CHAP.map(function(c){return '<button data-c="'+c[0]+'" title="'+c[2]+'">'+c[1]+'</button>'}).join('')+'<span class="sp"></span><button id="mu" class="idle" aria-pressed="false">音樂 關</button><button id="fs" aria-label="全螢幕">全螢幕</button>';
+var chapB=[].slice.call(nav.querySelectorAll('[data-c]'));
+function firstOf(id){var sec=document.getElementById(id);return slides.indexOf(sec.querySelector('.step'))}
+function enter(el){el.querySelectorAll('.reveal.pre').forEach(function(r){r.classList.remove('pre');if(!RM)r.querySelectorAll('[data-c]').forEach(function(n){if(!n.dataset.c||isNaN(+n.dataset.c))return;var to=+n.dataset.c,d=+(n.dataset.d||0),t0=performance.now();(function st(now){var p=eo(clamp((now-t0)/1300,0,1));n.textContent=(to*p).toFixed(d);if(p<1)requestAnimationFrame(st);else n.textContent=to.toFixed(d)})(t0)})})}
+var revs=document.querySelectorAll('.reveal');if(!RM)revs.forEach(function(r){r.classList.add('pre')});
+var planCv=[].slice.call(document.querySelectorAll('.pcv'));function sizeAllP(){planCv.forEach(function(c){pc=c;pg=c.getContext('2d');sizeP()})}
+function ui(){var e=slides[cur];document.getElementById('pn').textContent=(cur+1)+' / '+slides.length;document.getElementById('bar').style.transform='scaleX('+((cur+1)/slides.length)+')';var sec=e.closest('section'),id=sec&&sec.id;chapB.forEach(function(b){b.classList.toggle('now',b.dataset.c===id)});
+  var cc=CHAP.filter(function(c){return c[0]===id})[0];document.getElementById('sec').textContent=cc?cc[1]+'、'+cc[2]+(e.dataset.sub?'　｜　'+e.dataset.sub:''):(id==='toc'?'大綱':'');if(sec&&id==='shoot')sizeAllP();
+  scenes.forEach(function(w){var on=w.cv.closest('.step')===e;w.vis=on;if(on&&w.resize)w.resize()});
+  if(e===heroEl&&!pHero.fail&&!heroOn){pHero.vis=true;pHero.ensure();pHero.resize()}else{pHero.vis=false}
+}
+function go(i){if(document.getElementById('lb')&&document.getElementById('lb').classList.contains('on')){document.getElementById('lb').classList.remove('on');return}i=clamp(i,0,slides.length-1);if(i===cur)return;var old=slides[cur],nw=slides[i];old.classList.remove('on');nw.classList.add('on');if(gl&&(old.dataset.scene!==nw.dataset.scene||(!!old.dataset.mirror)!==(!!nw.dataset.mirror)))S.tr={a:old.dataset.scene,b:nw.dataset.scene,ma:old.dataset.mirror?1:0,mb:nw.dataset.mirror?1:0,t0:performance.now()};else S.tr=null;cur=i;if(S.tr)tEnter=performance.now();S.dy=0;S.dp=0;enter(nw);ui();try{history.replaceState(null,'','#p'+(i+1))}catch(x){}}
+nav.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.id==='pv')go(cur-1);else if(b.id==='nx')go(cur+1);else if(b.id==='fs'){if(document.fullscreenElement)document.exitFullscreen();else if(deckEl.requestFullscreen)deckEl.requestFullscreen().catch(function(){})}else if(b.id==='mu'){b.classList.remove('idle');if(bgm.paused){bgm.play().then(function(){b.textContent='音樂 開';b.setAttribute('aria-pressed','true')}).catch(function(){})}else{bgm.pause();b.textContent='音樂 關';b.setAttribute('aria-pressed','false')}}else if(b.dataset.c)go(firstOf(b.dataset.c))});
+var bgm=new Audio(AUD);bgm.loop=true;bgm.volume=.32;
+addEventListener('keydown',function(e){if(e.target.tagName==='INPUT')return;var k=e.key;if(k==='ArrowRight'||k==='ArrowDown'||k==='PageDown'||k===' '){e.preventDefault();go(cur+1)}else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'){e.preventDefault();go(cur-1)}else if(k==='Home')go(0);else if(k==='End')go(slides.length-1)});
+var wheelT=0;addEventListener('wheel',function(e){var n=performance.now();if(n-wheelT<850||Math.abs(e.deltaY)<18)return;wheelT=n;go(cur+(e.deltaY>0?1:-1))},{passive:true});
+var tx=null;addEventListener('touchstart',function(e){if(e.target.closest('input,details,.tscroll,button'))return tx=null;tx=[e.touches[0].clientX,e.touches[0].clientY]},{passive:true});addEventListener('touchend',function(e){if(!tx)return;var c=e.changedTouches[0],dx=c.clientX-tx[0],dy=c.clientY-tx[1];if(Math.max(Math.abs(dx),Math.abs(dy))>46)go(cur+((Math.abs(dx)>Math.abs(dy)?dx:dy)<0?1:-1));tx=null},{passive:true});
+
+var fE=document.getElementById('films'),fStep=fE.closest('.step');
+document.querySelectorAll('.pcards').forEach(function(c){var h=c.closest('.step').querySelector('.big-h');if(h&&h.textContent.indexOf('旅伴')>=0){var t=document.createElement('span');t.className='stat';t.textContent='邀約中';h.appendChild(t)}});
+(function(){var w=document.querySelector('.wks');if(w){var t=document.createElement('span');t.className='stat wide';t.textContent='演員陣容邀約中';w.parentNode.insertBefore(t,w.nextSibling)}})();
+if(!gl){var _bg=function(){var e=stepEls.filter(function(x){return x.classList.contains('on')})[0];if(e&&IMG[e.dataset.scene])document.getElementById('deck').style.background='center/cover url('+IMG[e.dataset.scene]+')'};setTimeout(_bg,200);['click','keyup','touchend'].forEach(function(n){document.addEventListener(n,function(){setTimeout(_bg,120)})})}
+document.querySelectorAll('.spotp .ev img').forEach(function(i){i.addEventListener('click',function(){document.getElementById('lbt').textContent=(i.nextElementSibling||{}).textContent||'';document.getElementById('lbg').innerHTML='<img src="'+i.src+'" alt="">';lb.classList.add('on')})});
+document.querySelectorAll('.wk').forEach(function(w){if(w.textContent.indexOf('千禧曼波')>=0)w.innerHTML=w.textContent.trim().split('　').map(function(x){return '<span class="nb">'+x+'</span>'}).join('　')});
+(function(){var v=document.getElementById('views'),l=document.getElementById('vlead');if(!v||!l)return;v.addEventListener('click',function(e){var b=e.target.closest('.vb');if(!b||!b.dataset.lead)return;l.style.opacity=0;setTimeout(function(){l.innerHTML=b.dataset.lead;l.style.opacity=1},300)})})();
+[['.clips','.clip'],['.stops','.stop'],['.pcards','.pcard'],['.tgrid','.tcard'],['#mgrid','.mc'],['#pgrid','.pc'],['.wks','article'],['.tocg','button'],['.trio','.vb'],['.three','.sheet'],['#checks','.check'],['.bigs','.big'],['#films','.film'],['.tstrip','img'],['.spots','li']].forEach(function(q){document.querySelectorAll(q[0]).forEach(function(par){par.querySelectorAll(q[1]).forEach(function(el,i){el.classList.add('anim');el.style.setProperty('--i',i)})})});
+function addHint(sel,txt){document.querySelectorAll(sel).forEach(function(el){var h=document.createElement('span');h.className='hint';h.textContent=txt;el.parentNode.insertBefore(h,el.nextSibling)})}
+addHint('#views','點一下，看三種心情的畫面');addHint('.clips:not(.row)','點剪報看原文');addHint('.clips.row','點剪報看原文');addHint('#checks','點方框可以打勾');
+
+var lb=document.createElement('div');lb.id='lb';lb.innerHTML='<header><span id="lbt"></span><button id="lbc">關閉</button></header><div id="lbg"></div>';document.getElementById('pages').appendChild(lb);
+function lbClose(){lb.classList.remove('on')}
+document.querySelectorAll('.clip').forEach(function(b){b.addEventListener('click',function(){document.getElementById('lbt').textContent=b.dataset.t;document.getElementById('lbg').innerHTML=b.dataset.imgs.split(',').map(function(k){return '<img src="'+PX[k]+'" alt="">'}).join('');lb.classList.add('on')})});
+lb.addEventListener('click',function(e){if(e.target===lb||e.target.id==='lbc'||e.target.id==='lbg')lbClose()});
+var fArt=[].slice.call(fE.querySelectorAll('.film')).map(function(a){return {ps:[].slice.call(a.querySelectorAll('p')),pg:a.querySelector('.pg')}});
+function drawFilm(t){fArt.forEach(function(f,i){var n=f.ps.length,len=n*1.9+1.6,u=(t+i*1.3)%len,k=Math.floor(u/1.9);f.ps.forEach(function(p,j){p.classList.toggle('on',j<=k)});f.pg.style.width=(u/len*100)+'%'})}
+if(RM)fArt.forEach(function(f){f.ps.forEach(function(p){p.classList.add('on')});f.pg.style.width='100%'});
+scenes.forEach(function(w){var last=0,idx=0;w.drops=[0,0,-99,0,0,-99,0,0,-99,0,0,-99,0,0,-99,0,0,-99];w.cv.parentElement.addEventListener('pointermove',function(e){if(e.pointerType==='touch')return;var now=performance.now();if(now-last<170)return;var r=w.cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;if(y<w.o.hz+.01)return;last=now;w.drops[idx*3]=x;w.drops[idx*3+1]=y;w.drops[idx*3+2]=w.T||0;idx=(idx+1)%6})});
+var start=performance.now();
+function tick(now){var t=(now-start)/1000,e=slides[cur];
+  scenes.forEach(function(w){if(w.vis){if(w.t0==null)w.t0=t;w.frame(t-w.t0)}});
+  if(pHero.vis&&pHero.ready&&!pHero.fail){var ty=pHero.px*.3+Math.sin(t*.27)*.03,tp=pHero.py*.16;pHero.yaw+=(ty*.8-pHero.yaw)*.06;pHero.pit+=(tp-pHero.pit)*.06;if(pHero.t0==null)pHero.t0=t;pHero.M=prog(t-pHero.t0,1.3,4.8);pHero.S=0;pHero.draw(t);if(t-pHero.t0>4.7&&!heroOn){heroOn=true;hero.settled=false;pHero.cv.style.transition='opacity 1s';pHero.cv.style.opacity=0;setTimeout(function(){pHero.vis=false;pHero.cv.style.display='none'},1100)}}
+  drawStage(t);
+  if(e.closest('#shoot'))planCv.forEach(function(c,i){pc=c;pg=c.getContext('2d');mode=i;drawPlan(t)});
+  if(e===fStep)drawFilm(t);
+  requestAnimationFrame(tick)}
+addEventListener('resize',function(){fitDeck();if(gl){var w=Math.round(cv.getBoundingClientRect().width);if(w!==S.lw){S.lw=w;grid();loadAll()}}scenes.forEach(function(w){w.resize()});pHero.resize();sizeAllP()});
+if(!gl)fitDeck();S.lw=Math.round(cv.getBoundingClientRect().width);
+var hs=/^#p(\d+)$/.exec(location.hash);if(hs){var ix=clamp(+hs[1]-1,0,slides.length-1);if(ix){slides[0].classList.remove('on');slides[ix].classList.add('on');cur=ix;enter(slides[ix])}}
+document.querySelectorAll('img.crisp').forEach(function(i){i.src=HI[i.dataset.hi]});
+ui();enter(slides[cur]);
+if(RM&&!pHero.fail)pHero.cv.style.display='none';
+requestAnimationFrame(tick);
+})();
+</script>
