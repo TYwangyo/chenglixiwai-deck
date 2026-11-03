@@ -552,6 +552,9 @@ img.crisp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opac
 .step:has(#checks){align-content:center!important}.spotp .ev img{cursor:zoom-in}.spotp .ev figcaption{font-size:13.5px!important}
 html,body{-webkit-text-size-adjust:100%!important;text-size-adjust:100%!important}
 .step .lead{text-wrap:balance}
+#nav,.ea{transition:opacity .35s}
+.ea{position:absolute;top:50%;width:96px;height:180px;margin-top:-90px;z-index:7;border:0;border-radius:8px;background:rgba(10,16,22,.26);color:#fff;font:400 64px/1 var(--body);cursor:pointer;display:grid;place-items:center;padding:0}.ea:hover{background:rgba(10,16,22,.5)}#ePrev{left:16px}#eNext{right:16px}.ea[disabled]{display:none}
+#deck.nav-off #nav,#deck.arr-off .ea{opacity:0;pointer-events:none}
 .stat{display:inline-block;margin-left:14px;padding:3px 12px;border:1px solid #e4c49d;border-radius:99px;font:600 15px var(--body);color:#e4c49d;vertical-align:middle;letter-spacing:.08em;text-shadow:none}.stat.wide{display:table;margin:14px auto 0}
 .theme{font:600 22px/1.4 var(--display);color:#e4c49d;letter-spacing:.08em}
 .vb small{display:block;font:500 13px var(--mono);letter-spacing:.2em;color:#e4c49d;margin-bottom:2px}
@@ -931,6 +934,14 @@ var wheelT=0;addEventListener('wheel',function(e){var n=performance.now();if(n-w
 var tx=null;addEventListener('touchstart',function(e){if(e.target.closest('input,details,.tscroll,button'))return tx=null;tx=[e.touches[0].clientX,e.touches[0].clientY]},{passive:true});addEventListener('touchend',function(e){if(!tx)return;var c=e.changedTouches[0],dx=c.clientX-tx[0],dy=c.clientY-tx[1];if(Math.max(Math.abs(dx),Math.abs(dy))>46)go(cur+((Math.abs(dx)>Math.abs(dy)?dx:dy)<0?1:-1));tx=null},{passive:true});
 
 var fE=document.getElementById('films'),fStep=fE.closest('.step');
+(function(){var P=document.getElementById('pages'),D=document.getElementById('deck');['ePrev|上一頁|‹','eNext|下一頁|›'].forEach(function(x){var q=x.split('|'),b=document.createElement('button');b.id=q[0];b.className='ea';b.setAttribute('aria-label',q[1]);b.textContent=q[2];b.addEventListener('click',function(e){e.stopPropagation();go(cur+(q[0]==='eNext'?1:-1));sync()});P.appendChild(b)});
+var ep=document.getElementById('ePrev'),en=document.getElementById('eNext'),tN=0,tA=0,lastT=0;function sync(){ep.disabled=cur===0;en.disabled=cur===slides.length-1}
+function off(c,ms,o){clearTimeout(o);return setTimeout(function(){D.classList.add(c)},ms)}
+function showAll(ms){D.classList.remove('nav-off','arr-off');tN=off('nav-off',ms,tN);tA=off('arr-off',ms,tA)}
+addEventListener('mousemove',function(e){if(performance.now()-lastT<900)return;var r=D.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;if(y>.82){D.classList.remove('nav-off');clearTimeout(tN)}else{clearTimeout(tN);tN=setTimeout(function(){D.classList.add('nav-off')},1100)}if(x<.13||x>.87){D.classList.remove('arr-off');clearTimeout(tA)}else{clearTimeout(tA);tA=setTimeout(function(){D.classList.add('arr-off')},1100)}});
+addEventListener('touchend',function(){lastT=performance.now();showAll(3200);sync()},{passive:true});
+addEventListener('keydown',function(){setTimeout(sync,30)});document.getElementById('nav').addEventListener('click',function(){setTimeout(sync,30)});addEventListener('wheel',function(){setTimeout(sync,30)},{passive:true});
+sync();setTimeout(sync,300);showAll(5000)})();
 document.querySelectorAll('.pcards').forEach(function(c){var h=c.closest('.step').querySelector('.big-h');if(h&&h.textContent.indexOf('旅伴')>=0){var t=document.createElement('span');t.className='stat';t.textContent=h.textContent.indexOf('遇見王瀝川')>=0?'已確認出演意願':'邀約中';h.appendChild(t)}});
 (function(){var w=document.querySelector('.wks');if(w){var t=document.createElement('span');t.className='stat wide';t.textContent='演員陣容確認與邀約中';w.parentNode.insertBefore(t,w.nextSibling)}})();
 if(!gl){var _bg=function(){var e=stepEls.filter(function(x){return x.classList.contains('on')})[0];if(e&&IMG[e.dataset.scene])document.getElementById('deck').style.background='center/cover url('+IMG[e.dataset.scene]+')'};setTimeout(_bg,200);['click','keyup','touchend'].forEach(function(n){document.addEventListener(n,function(){setTimeout(_bg,120)})})}
